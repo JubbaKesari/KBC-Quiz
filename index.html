@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Knight Puzzle</title>
+  <title>Knight Puzzle Solution</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
+      background-color: #f5f5dc;
       text-align: center;
     }
 
@@ -35,11 +35,11 @@
     }
 
     .white {
-      background-color: #fff;
+      background-color: #eee;
     }
 
     .black {
-      background-color: #000;
+      background-color: #666;
       color: white;
     }
 
@@ -56,12 +56,12 @@
   </style>
 </head>
 <body>
-  <h1>Knight Puzzle</h1>
+  <h1>Knight Puzzle: Swapped Knights</h1>
 
   <div class="chessboard" id="board"></div>
 
   <div class="video-container">
-    <h2>Watch the Puzzle Solution</h2>
+    <h2>Watch the Solution</h2>
     <video controls>
       <source src="Knight Puzzle.mp4" type="video/mp4" />
       Your browser does not support the video tag.
@@ -70,15 +70,17 @@
 
   <script>
     const board = document.getElementById('board');
-    const whiteKnight = '♘';
-    const blackKnight = '♞';
+    const knights = {
+      white: '♘',
+      black: '♞'
+    };
 
-    // 🧠 ONLY CHANGE: swapped black and white knight positions!
+    // Initial position after swapping
     const positions = [
-      whiteKnight, whiteKnight, whiteKnight, whiteKnight,
+      knights.black, knights.black, knights.black, knights.black,
       '', '', '', '',
       '', '', '', '',
-      blackKnight, blackKnight, blackKnight, blackKnight
+      knights.white, knights.white, knights.white, knights.white
     ];
 
     for (let i = 0; i < 16; i++) {
