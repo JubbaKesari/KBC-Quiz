@@ -13,6 +13,7 @@
       padding: 20px;
     }
 
+    /* Navigation link */
     .nav-link {
       text-align: center;
       margin-bottom: 16px;
@@ -57,8 +58,8 @@
       animation: blink 1.2s infinite;
     }
     @keyframes blink {
-      0%,100% { opacity: 1; }
-      50%     { opacity: 0.3; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
     .question {
@@ -84,8 +85,8 @@
       animation: pulse 1s infinite;
     }
     @keyframes pulse {
-      0%,100% { transform: scale(1); }
-      50%     { transform: scale(1.1); }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
     #chessboard {
@@ -116,14 +117,14 @@
     .knight.white::before {
       content: '♘';
       font-size: 28px;
-      color: #ffffff;
-      filter: drop-shadow(0 0 4px #ffffff);
+      color: white;
+      filter: drop-shadow(0 0 3px white);
     }
     .knight.black::before {
       content: '♞';
       font-size: 28px;
-      color: #000000;
-      filter: drop-shadow(0 0 4px #000000);
+      color: white;
+      filter: drop-shadow(0 0 2px black);
     }
 
     .cell.selected {
@@ -168,14 +169,13 @@
       width: 100%;
       max-height: 280px;
       background: #000;
-      border-radius: 8px;
     }
   </style>
 </head>
 <body>
   <!-- Link back to Quiz 1 -->
   <div class="nav-link">
-    <a href="quiz15.html">← Back to Quiz 1</a>
+    <a href="quiz1.html">← Back to Quiz 1</a>
   </div>
 
   <div class="container">
@@ -187,8 +187,8 @@
     </div>
 
     <div class="status-bar">
-      <div id="timer"></div>
-      <div id="moves">Moves: 0</div>
+      <div class="timer" id="timer"></div>
+      <div class="moves" id="moves">Moves: 0</div>
     </div>
 
     <div id="chessboard"></div>
@@ -211,133 +211,93 @@
 
   <script>
     const mask = [
-      [0,1,0,0],
-      [0,1,1,0],
-      [0,1,1,1],
-      [1,1,1,1]
+      [0,1,0,0],[0,1,1,0],[0,1,1,1],[1,1,1,1]
     ];
-
     let pieces = [
-      { r:0, c:1, color:'black' },
-      { r:2, c:2, color:'black' },
-      { r:3, c:0, color:'white' },
-      { r:3, c:2, color:'white' }
+      {r:0,c:1,color:'black'},
+      {r:2,c:2,color:'black'},
+      {r:3,c:0,color:'white'},
+      {r:3,c:2,color:'white'}
     ];
-
     const win = [
-      { r:0, c:1, color:'white' },
-      { r:2, c:2, color:'white' },
-      { r:3, c:0, color:'black' },
-      { r:3, c:2, color:'black' }
+      {r:0,c:1,color:'white'},
+      {r:2,c:2,color:'white'},
+      {r:3,c:0,color:'black'},
+      {r:3,c:2,color:'black'}
     ];
 
-    let selected = null,
-        moveCount = 0,
-        timeLeft = 900,
-        active = true,
-        timerInterval;
+    let selected=null,moveCount=0,timeLeft=900,active=true,timerInterval;
+    const board=document.getElementById('chessboard'),
+          timerEl=document.getElementById('timer'),
+          movesEl=document.getElementById('moves'),
+          stopBtn=document.getElementById('stopBtn'),
+          nextBtn=document.getElementById('nextBtn'),
+          feedback=document.getElementById('feedback'),
+          solCont=document.getElementById('solutionContainer');
 
-    const board    = document.getElementById('chessboard'),
-          timerEl  = document.getElementById('timer'),
-          movesEl  = document.getElementById('moves'),
-          stopBtn  = document.getElementById('stopBtn'),
-          nextBtn  = document.getElementById('nextBtn'),
-          feedback = document.getElementById('feedback'),
-          solCont  = document.getElementById('solutionContainer');
-
-    function start() {
-      render();
-      updateTimer();
-      timerInterval = setInterval(() => {
-        if (!active) return;
-        if (timeLeft-- > 0) updateTimer();
+    function start(){
+      render(); updateTimer();
+      timerInterval=setInterval(()=>{
+        if(!active) return;
+        if(timeLeft-->0) updateTimer();
         else clearInterval(timerInterval);
-      }, 1000);
+      },1000);
     }
-
-    function updateTimer() {
-      const m = Math.floor(timeLeft/60).toString().padStart(2,'0'),
-            s = (timeLeft%60).toString().padStart(2,'0');
-      timerEl.textContent = `Time: ${m}:${s}`;
+    function updateTimer(){
+      const m=Math.floor(timeLeft/60).toString().padStart(2,'0'),
+            s=(timeLeft%60).toString().padStart(2,'0');
+      timerEl.textContent=`Time: ${m}:${s}`;
     }
-
-    function render() {
-      board.innerHTML = '';
-      feedback.textContent = '';
-      solCont.style.display = 'none';
-      nextBtn.disabled = true;
-      selected = null;
-      movesEl.textContent = `Moves: ${moveCount}`;
-
-      const grid = Array(4).fill().map(()=>Array(4).fill(null));
-      pieces.forEach(p => grid[p.r][p.c] = p.color);
-
-      for (let r = 0; r < 4; r++) {
-        for (let c = 0; c < 4; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          if (!mask[r][c]) cell.classList.add('hidden');
-          cell.dataset.r = r;
-          cell.dataset.c = c;
-          if (grid[r][c]) cell.classList.add('knight', grid[r][c]);
-          cell.addEventListener('click', () => onCellClick(cell, grid));
-          board.appendChild(cell);
-        }
+    function render(){
+      board.innerHTML=''; feedback.textContent=''; solCont.style.display='none';
+      nextBtn.disabled=true; selected=null; movesEl.textContent=`Moves: ${moveCount}`;
+      const grid=Array(4).fill().map(()=>Array(4).fill(null));
+      pieces.forEach(p=>grid[p.r][p.c]=p.color);
+      for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+        const cell=document.createElement('div'); cell.className='cell';
+        if(!mask[r][c]) cell.classList.add('hidden');
+        cell.dataset.r=r; cell.dataset.c=c;
+        if(grid[r][c]) cell.classList.add('knight',grid[r][c]);
+        cell.addEventListener('click',()=>onCellClick(cell,grid));
+        board.appendChild(cell);
       }
     }
-
-    function onCellClick(cell, grid) {
-      if (!active) return;
-      const r = +cell.dataset.r, c = +cell.dataset.c;
-      if (!mask[r][c]) return;
-
-      if (!selected) {
-        if (grid[r][c]) {
-          selected = cell;
-          cell.classList.add('selected');
-        }
+    function onCellClick(cell,grid){
+      if(!active) return;
+      const r=+cell.dataset.r,c=+cell.dataset.c;
+      if(!mask[r][c]) return;
+      if(!selected){
+        if(grid[r][c]){ selected=cell; cell.classList.add('selected'); }
       } else {
-        const sr = +selected.dataset.r, sc = +selected.dataset.c;
-        if (valid(sr, sc, r, c) && !grid[r][c]) {
-          const col = grid[sr][sc];
-          grid[sr][sc] = null;
-          grid[r][c] = col;
-          pieces = pieces.filter(p => !(p.r===sr && p.c===sc));
-          pieces.push({r,c,color:col});
-          moveCount++;
-          render();
-          if (win.every(w => grid[w.r][w.c] === w.color)) {
-            feedback.textContent = '✅ Correct – Goal Achieved!';
-            feedback.className = 'feedback correct';
-            nextBtn.disabled = false;
-            active = false;
+        const sr=+selected.dataset.r,sc=+selected.dataset.c;
+        if(valid(sr,sc,r,c) && !grid[r][c]){
+          const col=grid[sr][sc]; grid[sr][sc]=null; grid[r][c]=col;
+          pieces=pieces.filter(p=>!(p.r===sr&&p.c===sc));
+          pieces.push({r,c,color:col}); moveCount++; render();
+          if(win.every(w=>grid[w.r][w.c]===w.color)){
+            feedback.textContent='✅ Correct – Goal Achieved!';
+            feedback.className='feedback correct'; nextBtn.disabled=false; active=false;
           }
         }
-        selected.classList.remove('selected');
-        selected = null;
+        selected.classList.remove('selected'); selected=null;
       }
     }
-
-    function valid(r1,c1,r2,c2) {
-      const dr = Math.abs(r1-r2), dc = Math.abs(c1-c2);
-      return (dr===2 && dc===1) || (dr===1 && dc===2);
+    function valid(r1,c1,r2,c2){
+      const dr=Math.abs(r1-r2),dc=Math.abs(c1-c2);
+      return (dr===2&&dc===1)||(dr===1&&dc===2);
     }
-
-    stopBtn.addEventListener('click', () => {
-      active = false; clearInterval(timerInterval);
-      const grid = Array(4).fill().map(()=>Array(4).fill(null));
-      pieces.forEach(p => grid[p.r][p.c] = p.color);
-      if (win.every(w => grid[w.r][w.c] === w.color)) {
-        feedback.textContent = '✅ Correct – Goal Achieved!';
-        feedback.className = 'feedback correct';
+    stopBtn.addEventListener('click',()=>{
+      active=false; clearInterval(timerInterval);
+      const grid=Array(4).fill().map(()=>Array(4).fill(null));
+      pieces.forEach(p=>grid[p.r][p.c]=p.color);
+      if(win.every(w=>grid[w.r][w.c]===w.color)){
+        feedback.textContent='✅ Correct – Goal Achieved!'; feedback.className='feedback correct';
       } else {
-        feedback.textContent = '❌ Incorrect – Goal Not Achieved';
-        feedback.className = 'feedback wrong';
-        solCont.style.display = 'block';
+        feedback.textContent='❌ Incorrect – Goal Not Achieved'; feedback.className='feedback wrong';
+        solCont.style.display='block';
       }
     });
-
-    nextBtn.addEventListener('click', () => alert('Proceed to next quiz'));
+    nextBtn.addEventListener('click',()=>alert('Proceed to next quiz'));
     start();
   </script>
 </body>
