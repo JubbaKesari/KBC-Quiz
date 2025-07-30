@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Quiz 1 – Coin Roll Puzzle</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    nav a, nav strong {
+      color: #00e0ff;
+      margin: 0 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav strong {
+      color: #ff4d4d;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #00ffff;
+    }
+    .level {
+      font-size: 16px;
+      margin: 8px 0 20px;
+      color: #ff4d4d;
+      animation: blink 1.2s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1 }
+      50%     { opacity: 0.4 }
+    }
+    .question {
+      font-size: 18px;
+      margin-bottom: 24px;
+      background: #262626;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 4px solid #00e0ff;
+    }
+    .options {
+      margin-bottom: 20px;
+    }
+    .options label {
+      margin: 0 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #005fa3;
+      transform: scale(1.05);
+    }
+    .feedback {
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .feedback.correct { color: #00ff88; }
+    .feedback.wrong   { color: #ff4444; }
+    #solutionContainer {
+      display: none;
+      margin-top: 20px;
+    }
+    #solutionContainer video {
+      width: 100%;
+      max-height: 280px;
+      border-radius: 6px;
+      background: #000;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    .controls a button {
+      background: #444;
+    }
+    .controls a button:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Quiz 1</strong> |
+    <a href="quiz2.html">Quiz 2</a> |
+    … |
+    <a href="quiz15.html">Quiz 15</a>
+  </nav>
+
+  <div class="container">
+    <h1>Quiz 1</h1>
+    <div class="level">Level – Easy</div>
+
+    <div class="question">
+      Roll the left coin halfway around without slipping.<br>
+      Will the coin be upside down?
+    </div>
+
+    <div class="options">
+      <label><input type="radio" name="answer" value="yes"> Yes</label>
+      <label><input type="radio" name="answer" value="no"> No</label>
+    </div>
+
+    <button id="lockBtn">Lock Your Response</button>
+
+    <div id="feedback" class="feedback"></div>
+
+    <div id="solutionContainer">
+      <p>Solution Video:</p>
+      <video controls>
+        <source src="Quiz%201.mp4" type="video/mp4">
+        Your browser doesn’t support HTML5 video.
+      </video>
+    </div>
+
+    <div class="controls">
+      <!-- Previous disabled on Quiz1 -->
+      <button disabled>← Previous Quiz</button>
+      <a href="quiz2.html"><button>Next Quiz →</button></a>
+    </div>
+  </div>
+
+  <script>
+    const lockBtn = document.getElementById('lockBtn');
+    const feedback = document.getElementById('feedback');
+    const solCont  = document.getElementById('solutionContainer');
+
+    lockBtn.addEventListener('click', () => {
+      const choice = document.querySelector('input[name="answer"]:checked');
+      if (!choice) {
+        alert('Please select Yes or No before locking.');
+        return;
+      }
+      if (!confirm('Do you wish to lock your response?')) return;
+
+      const answer = choice.value;
+      // Correct answer: No (coin remains upright)
+      if (answer === 'no') {
+        feedback.textContent = '✅ Correct! The coin remains upright.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '❌ Wrong. Watch the solution below.';
+        feedback.className = 'feedback wrong';
+        solCont.style.display = 'block';
+      }
+      // disable further input
+      document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
+      lockBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>
