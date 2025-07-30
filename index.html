@@ -32,7 +32,7 @@
     .feedback.correct { color:#0f0; }
     .feedback.wrong   { color:#f00; }
     #solutionContainer { display:none; margin-top:16px; text-align:center; }
-    #solutionContainer iframe { width:100%; height:280px; border:0; }
+    #solutionContainer video { width:100%; max-height:280px; background:#000; }
   </style>
 </head>
 <body>
@@ -49,14 +49,14 @@
     </div>
     <div id="feedback" class="feedback"></div>
 
-    <!-- Solution embed placeholder -->
+    <!-- Self‑hosted solution video -->
     <div id="solutionContainer">
-      <p>Solution (15:51–20:50):</p>
-      <iframe
-        src="https://www.youtube.com/embed/CX3brALUDpI?start=951&end=1250&controls=0&rel=0&modestbranding=1&iv_load_policy=3"
-        allow="autoplay; encrypted-media"
-        allowfullscreen>
-      </iframe>
+      <p>Solution Video:</p>
+      <video id="solutionVideo" controls preload="metadata">
+        <!-- Make sure Knight Puzzle.mp4 is uploaded under videos/ -->
+        <source src="videos/Knight%20Puzzle.mp4" type="video/mp4">
+        Your browser doesn’t support HTML5 video.
+      </video>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
           pieces.push({r,c,color:col});
           moveCount++;
           render();
-          if (checkWin(grid)) {
+          if (win.every(w => grid[w.r][w.c] === w.color)) {
             feedback.textContent = 'Correct – Goal Achieved!';
             feedback.className = 'feedback correct';
             nextBtn.disabled = false;
@@ -168,16 +168,12 @@
       return (dr===2 && dc===1) || (dr===1 && dc===2);
     }
 
-    function checkWin(grid) {
-      return win.every(w => grid[w.r][w.c] === w.color);
-    }
-
     stopBtn.addEventListener('click', () => {
       active = false;
       clearInterval(timerInterval);
       const grid = Array(4).fill().map(()=>Array(4).fill(null));
       pieces.forEach(p => grid[p.r][p.c] = p.color);
-      if (checkWin(grid)) {
+      if (win.every(w => grid[w.r][w.c] === w.color)) {
         feedback.textContent = 'Correct – Goal Achieved!';
         feedback.className = 'feedback correct';
       } else {
