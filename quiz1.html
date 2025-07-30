@@ -3,34 +3,29 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Quiz 15 – Level: Extreme</title>
+  <title>Quiz 1 – Coin Roll Puzzle</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: #121212;
-      color: #fff;
+      color: #eee;
       margin: 0;
       padding: 20px;
     }
-
-    .nav-link {
+    nav {
       text-align: center;
       margin-bottom: 16px;
     }
-    .nav-link a {
+    nav a, nav strong {
       color: #00e0ff;
+      margin: 0 6px;
       text-decoration: none;
+      font-weight: 500;
       font-size: 14px;
-      border: 1px solid #00e0ff;
-      padding: 6px 12px;
-      border-radius: 4px;
-      transition: background 0.3s, color 0.3s;
     }
-    .nav-link a:hover {
-      background: #00e0ff;
-      color: #121212;
+    nav strong {
+      color: #ff4d4d;
     }
-
     .container {
       max-width: 600px;
       margin: auto;
@@ -38,111 +33,52 @@
       padding: 24px;
       border-radius: 12px;
       box-shadow: 0 0 12px rgba(255,255,255,0.1);
-    }
-
-    h1 {
       text-align: center;
-      font-size: 32px;
+    }
+    h1 {
       margin: 0;
-      font-weight: bold;
+      font-size: 28px;
       color: #00ffff;
     }
-
     .level {
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 20px;
-      font-weight: 600;
+      font-size: 16px;
+      margin: 8px 0 20px;
       color: #ff4d4d;
       animation: blink 1.2s infinite;
     }
     @keyframes blink {
       0%,100% { opacity: 1; }
-      50%     { opacity: 0.3; }
+      50%     { opacity: 0.4; }
     }
-
     .question {
-      text-align: center;
-      margin: 16px 0 24px;
-      font-size: 16px;
+      font-size: 18px;
+      margin-bottom: 16px;
       background: #262626;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
-      box-shadow: 0 0 8px rgba(255,255,255,0.1);
+      border-left: 4px solid #00e0ff;
     }
-
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      font-family: monospace;
-      margin-bottom: 16px;
-    }
-
-    #timer {
-      font-weight: bold;
-      color: #0ff;
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1); }
-      50%     { transform: scale(1.1); }
-    }
-
-    #chessboard {
-      display: grid;
-      grid-template-columns: repeat(4, 60px);
-      grid-template-rows: repeat(4, 60px);
-      gap: 5px;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .cell {
-      width: 60px;
-      height: 60px;
-      background: #444;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .question img {
+      max-width: 100%;
+      border: 2px solid #444;
       border-radius: 6px;
+      margin-top: 12px;
+    }
+    .options {
+      margin: 20px 0;
+    }
+    .options label {
+      margin: 0 12px;
+      font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s;
     }
-    .cell.hidden {
-      background: transparent;
-      pointer-events: none;
-    }
-
-    .knight.white::before {
-      content: '♘';
-      font-size: 28px;
-      color: #ffffff;
-      filter: drop-shadow(0 0 4px #ffffff);
-    }
-    .knight.black::before {
-      content: '♞';
-      font-size: 28px;
-      color: #000000;
-      filter: drop-shadow(0 0 4px #000000);
-    }
-
-    .cell.selected {
-      outline: 3px solid yellow;
-    }
-
-    .controls {
-      text-align: center;
-      margin-top: 10px;
-    }
-
     button {
       padding: 10px 20px;
-      margin: 6px;
+      font-size: 14px;
+      background: #0077cc;
+      color: #fff;
       border: none;
       border-radius: 6px;
-      background: #0077cc;
-      color: white;
-      font-weight: bold;
       cursor: pointer;
       transition: background 0.3s, transform 0.2s;
     }
@@ -150,195 +86,104 @@
       background: #005fa3;
       transform: scale(1.05);
     }
-
     .feedback {
-      text-align: center;
-      margin-top: 12px;
+      margin-top: 16px;
+      font-size: 16px;
       font-weight: bold;
     }
     .feedback.correct { color: #00ff88; }
     .feedback.wrong   { color: #ff4444; }
-
     #solutionContainer {
       display: none;
-      margin-top: 16px;
-      text-align: center;
+      margin-top: 20px;
     }
     #solutionContainer video {
       width: 100%;
       max-height: 280px;
+      border-radius: 6px;
       background: #000;
-      border-radius: 8px;
+    }
+    .controls {
+      margin-top: 24px;
+    }
+    .controls a button {
+      background: #444;
+    }
+    .controls a button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
-  <!-- Link back to Quiz 1 -->
-  <div class="nav-link">
-    <a href="quiz15.html">← Back to Quiz 1</a>
-  </div>
+
+  <nav>
+    <strong>Quiz 1</strong> |
+    <a href="index.html">Home</a> |
+    <a href="quiz2.html">Quiz 2</a> |
+    … |
+    <a href="quiz15.html">Quiz 15</a>
+  </nav>
 
   <div class="container">
-    <h1>Quiz 15</h1>
-    <div class="level">Level – Extreme</div>
+    <h1>Quiz 1</h1>
+    <div class="level">Level – Easy</div>
 
     <div class="question">
-      Your goal is to swap the positions of the black and white knights using only valid knight moves. Two knights cannot occupy the same box.
+      🧐 Rol­l the left coin halfway around without slipping.<br>
+      Will the coin be upside down?<br>
+      <img src="A_digital_image_poses_a_puzzle_involving_two_Unite.png" alt="Coin puzzle">
     </div>
 
-    <div class="status-bar">
-      <div id="timer"></div>
-      <div id="moves">Moves: 0</div>
+    <div class="options">
+      <label><input type="radio" name="answer" value="yes"> Yes</label>
+      <label><input type="radio" name="answer" value="no"> No</label>
     </div>
 
-    <div id="chessboard"></div>
-
-    <div class="controls">
-      <button id="stopBtn">Stop Quiz</button>
-      <button id="nextBtn" disabled>Next Quiz</button>
-    </div>
+    <button id="lockBtn">Lock Your Response</button>
 
     <div id="feedback" class="feedback"></div>
 
     <div id="solutionContainer">
       <p>Solution Video:</p>
-      <video id="solutionVideo" controls preload="metadata">
-        <source src="Knight%20Puzzle.mp4" type="video/mp4">
+      <video controls>
+        <source src="Quiz%201.mp4" type="video/mp4">
         Your browser doesn’t support HTML5 video.
       </video>
+    </div>
+
+    <div class="controls">
+      <button disabled>← Previous Quiz</button>
+      <a href="quiz2.html"><button>Next Quiz →</button></a>
     </div>
   </div>
 
   <script>
-    const mask = [
-      [0,1,0,0],
-      [0,1,1,0],
-      [0,1,1,1],
-      [1,1,1,1]
-    ];
+    const lockBtn = document.getElementById('lockBtn');
+    const feedback = document.getElementById('feedback');
+    const solCont  = document.getElementById('solutionContainer');
 
-    let pieces = [
-      { r:0, c:1, color:'black' },
-      { r:2, c:2, color:'black' },
-      { r:3, c:0, color:'white' },
-      { r:3, c:2, color:'white' }
-    ];
-
-    const win = [
-      { r:0, c:1, color:'white' },
-      { r:2, c:2, color:'white' },
-      { r:3, c:0, color:'black' },
-      { r:3, c:2, color:'black' }
-    ];
-
-    let selected = null,
-        moveCount = 0,
-        timeLeft = 900,
-        active = true,
-        timerInterval;
-
-    const board    = document.getElementById('chessboard'),
-          timerEl  = document.getElementById('timer'),
-          movesEl  = document.getElementById('moves'),
-          stopBtn  = document.getElementById('stopBtn'),
-          nextBtn  = document.getElementById('nextBtn'),
-          feedback = document.getElementById('feedback'),
-          solCont  = document.getElementById('solutionContainer');
-
-    function start() {
-      render();
-      updateTimer();
-      timerInterval = setInterval(() => {
-        if (!active) return;
-        if (timeLeft-- > 0) updateTimer();
-        else clearInterval(timerInterval);
-      }, 1000);
-    }
-
-    function updateTimer() {
-      const m = Math.floor(timeLeft/60).toString().padStart(2,'0'),
-            s = (timeLeft%60).toString().padStart(2,'0');
-      timerEl.textContent = `Time: ${m}:${s}`;
-    }
-
-    function render() {
-      board.innerHTML = '';
-      feedback.textContent = '';
-      solCont.style.display = 'none';
-      nextBtn.disabled = true;
-      selected = null;
-      movesEl.textContent = `Moves: ${moveCount}`;
-
-      const grid = Array(4).fill().map(()=>Array(4).fill(null));
-      pieces.forEach(p => grid[p.r][p.c] = p.color);
-
-      for (let r = 0; r < 4; r++) {
-        for (let c = 0; c < 4; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          if (!mask[r][c]) cell.classList.add('hidden');
-          cell.dataset.r = r;
-          cell.dataset.c = c;
-          if (grid[r][c]) cell.classList.add('knight', grid[r][c]);
-          cell.addEventListener('click', () => onCellClick(cell, grid));
-          board.appendChild(cell);
-        }
+    lockBtn.addEventListener('click', () => {
+      const choice = document.querySelector('input[name="answer"]:checked');
+      if (!choice) {
+        alert('Please select Yes or No before locking.');
+        return;
       }
-    }
+      if (!confirm('Do you wish to lock your response?')) return;
 
-    function onCellClick(cell, grid) {
-      if (!active) return;
-      const r = +cell.dataset.r, c = +cell.dataset.c;
-      if (!mask[r][c]) return;
-
-      if (!selected) {
-        if (grid[r][c]) {
-          selected = cell;
-          cell.classList.add('selected');
-        }
-      } else {
-        const sr = +selected.dataset.r, sc = +selected.dataset.c;
-        if (valid(sr, sc, r, c) && !grid[r][c]) {
-          const col = grid[sr][sc];
-          grid[sr][sc] = null;
-          grid[r][c] = col;
-          pieces = pieces.filter(p => !(p.r===sr && p.c===sc));
-          pieces.push({r,c,color:col});
-          moveCount++;
-          render();
-          if (win.every(w => grid[w.r][w.c] === w.color)) {
-            feedback.textContent = '✅ Correct – Goal Achieved!';
-            feedback.className = 'feedback correct';
-            nextBtn.disabled = false;
-            active = false;
-          }
-        }
-        selected.classList.remove('selected');
-        selected = null;
-      }
-    }
-
-    function valid(r1,c1,r2,c2) {
-      const dr = Math.abs(r1-r2), dc = Math.abs(c1-c2);
-      return (dr===2 && dc===1) || (dr===1 && dc===2);
-    }
-
-    stopBtn.addEventListener('click', () => {
-      active = false; clearInterval(timerInterval);
-      const grid = Array(4).fill().map(()=>Array(4).fill(null));
-      pieces.forEach(p => grid[p.r][p.c] = p.color);
-      if (win.every(w => grid[w.r][w.c] === w.color)) {
-        feedback.textContent = '✅ Correct – Goal Achieved!';
+      const answer = choice.value;
+      // Correct answer is "no"
+      if (answer === 'no') {
+        feedback.textContent = '✅ Correct! The coin remains upright.';
         feedback.className = 'feedback correct';
       } else {
-        feedback.textContent = '❌ Incorrect – Goal Not Achieved';
+        feedback.textContent = '❌ Wrong. Watch the solution below.';
         feedback.className = 'feedback wrong';
         solCont.style.display = 'block';
       }
+      // Disable further input
+      document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
+      lockBtn.disabled = true;
     });
-
-    nextBtn.addEventListener('click', () => alert('Proceed to next quiz'));
-    start();
   </script>
 </body>
 </html>
