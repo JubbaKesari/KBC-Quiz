@@ -2,68 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Quiz 15 – Knight Puzzle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz 15 – Level: Extreme</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
       margin: 0;
-      padding: 20px;
+      padding: 30px 20px;
     }
 
     .container {
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
-      background: #000;
-      padding: 24px 20px;
-      border-radius: 10px;
-      color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      background: #1a1a1a;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.05);
     }
 
-    .quiz-title {
+    .title {
       text-align: center;
-      margin-top: 0;
-    }
-
-    .quiz-title h1 {
-      margin: 0;
       font-size: 32px;
+      font-weight: bold;
+      color: #ffd700;
       letter-spacing: 1px;
-      color: #00e6e6;
+      margin-bottom: 5px;
+      animation: fadeInUp 1s ease-in-out;
     }
 
-    .quiz-title h3 {
-      margin: 4px 0 20px;
-      font-weight: normal;
-      font-size: 16px;
-      color: #ccc;
-    }
-
-    .puzzle-question {
-      margin-bottom: 16px;
-      font-size: 15px;
+    .level {
       text-align: center;
-      background: #111;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #333;
+      font-size: 18px;
+      font-weight: 500;
+      color: #ff4c4c;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
     }
 
     .status-bar {
       display: flex;
       justify-content: space-between;
-      font-family: monospace;
       margin-bottom: 16px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+    }
+
+    #timer {
+      color: #00ff99;
+      animation: timerPulse 1s infinite alternate;
     }
 
     #chessboard {
       display: grid;
       grid-template-columns: repeat(4, 60px);
       grid-template-rows: repeat(4, 60px);
-      gap: 4px;
+      gap: 5px;
       justify-content: center;
+      margin: auto;
     }
 
     .cell {
@@ -73,67 +70,78 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 6px;
+      transition: background 0.3s;
       cursor: pointer;
-      position: relative;
+    }
+
+    .cell:hover {
+      background: #444;
     }
 
     .cell.hidden {
       background: transparent;
+      pointer-events: none;
     }
 
     .knight.white::before {
       content: '♘';
-      font-size: 24px;
+      font-size: 26px;
       color: #fff;
+      text-shadow: 0 0 6px #ccc;
     }
 
     .knight.black::before {
       content: '♞';
-      font-size: 24px;
-      color: #fff;
+      font-size: 26px;
+      color: #ff4c4c;
+      text-shadow: 0 0 6px #ff0000;
     }
 
     .cell.selected {
-      outline: 3px solid yellow;
+      outline: 3px solid #ffd700;
     }
 
     .controls {
       text-align: center;
-      margin-top: 12px;
+      margin-top: 18px;
     }
 
     button {
-      margin: 4px;
-      padding: 8px 16px;
+      margin: 5px;
+      padding: 10px 20px;
       font-size: 14px;
       border: none;
-      background: #444;
+      border-radius: 8px;
+      background: #222;
       color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
+      transition: all 0.3s;
     }
 
     button:hover {
-      background: #666;
+      background: #00ff99;
+      color: #000;
+      transform: scale(1.05);
     }
 
     .feedback {
       text-align: center;
       margin-top: 12px;
       font-weight: bold;
+      font-size: 16px;
     }
 
     .feedback.correct {
-      color: #0f0;
+      color: #00ff00;
     }
 
     .feedback.wrong {
-      color: #f00;
+      color: #ff3333;
     }
 
     #solutionContainer {
       display: none;
-      margin-top: 16px;
+      margin-top: 20px;
       text-align: center;
     }
 
@@ -142,22 +150,31 @@
       max-height: 280px;
       background: #000;
     }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); color: #ff6666; }
+    }
+
+    @keyframes timerPulse {
+      from { color: #00ff99; }
+      to { color: #00ccff; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="quiz-title">
-      <h1>Quiz 15</h1>
-      <h3>Level – Extreme</h3>
-    </div>
-
-    <div class="puzzle-question">
-      <strong>Puzzle:</strong> Your goal is to swap the positions of the black and white knights using only valid knight moves and two knights cannot be in the same box.
-    </div>
+    <div class="title">Quiz 15</div>
+    <div class="level">Level – Extreme</div>
 
     <div class="status-bar">
-      <div class="timer" id="timer"></div>
-      <div class="moves" id="moves">Moves: 0</div>
+      <div id="timer">Time: 15:00</div>
+      <div id="moves">Moves: 0</div>
     </div>
 
     <div id="chessboard"></div>
@@ -172,7 +189,7 @@
     <div id="solutionContainer">
       <p>Solution Video:</p>
       <video id="solutionVideo" controls preload="metadata">
-        <source src="Knight%20Puzzle.mp4" type="video/mp4">
+        <source src="Knight%20Puzzle.mp4" type="video/mp4" />
         Your browser doesn’t support HTML5 video.
       </video>
     </div>
@@ -180,24 +197,24 @@
 
   <script>
     const mask = [
-      [0, 1, 0, 0],
-      [0, 1, 1, 0],
-      [0, 1, 1, 1],
-      [1, 1, 1, 1]
+      [0,1,0,0],
+      [0,1,1,0],
+      [0,1,1,1],
+      [1,1,1,1]
     ];
 
     let pieces = [
-      { r: 0, c: 1, color: 'black' },
-      { r: 2, c: 2, color: 'black' },
-      { r: 3, c: 0, color: 'white' },
-      { r: 3, c: 2, color: 'white' }
+      { r:0, c:1, color:'black' },
+      { r:2, c:2, color:'black' },
+      { r:3, c:0, color:'white' },
+      { r:3, c:2, color:'white' }
     ];
 
     const win = [
-      { r: 0, c: 1, color: 'white' },
-      { r: 2, c: 2, color: 'white' },
-      { r: 3, c: 0, color: 'black' },
-      { r: 3, c: 2, color: 'black' }
+      { r:0, c:1, color:'white' },
+      { r:2, c:2, color:'white' },
+      { r:3, c:0, color:'black' },
+      { r:3, c:2, color:'black' }
     ];
 
     let selected = null,
@@ -206,13 +223,13 @@
         active = true,
         timerInterval;
 
-    const board    = document.getElementById('chessboard'),
-          timerEl  = document.getElementById('timer'),
-          movesEl  = document.getElementById('moves'),
-          stopBtn  = document.getElementById('stopBtn'),
-          nextBtn  = document.getElementById('nextBtn'),
+    const board = document.getElementById('chessboard'),
+          timerEl = document.getElementById('timer'),
+          movesEl = document.getElementById('moves'),
+          stopBtn = document.getElementById('stopBtn'),
+          nextBtn = document.getElementById('nextBtn'),
           feedback = document.getElementById('feedback'),
-          solCont  = document.getElementById('solutionContainer');
+          solCont = document.getElementById('solutionContainer');
 
     function start() {
       render();
@@ -225,8 +242,8 @@
     }
 
     function updateTimer() {
-      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0'),
-            s = (timeLeft % 60).toString().padStart(2, '0');
+      const m = Math.floor(timeLeft/60).toString().padStart(2,'0'),
+            s = (timeLeft%60).toString().padStart(2,'0');
       timerEl.textContent = `Time: ${m}:${s}`;
     }
 
@@ -238,7 +255,7 @@
       selected = null;
       movesEl.textContent = `Moves: ${moveCount}`;
 
-      const grid = Array(4).fill().map(() => Array(4).fill(null));
+      const grid = Array(4).fill().map(()=>Array(4).fill(null));
       pieces.forEach(p => grid[p.r][p.c] = p.color);
 
       for (let r = 0; r < 4; r++) {
@@ -267,12 +284,12 @@
       } else {
         const sr = +selected.dataset.r,
               sc = +selected.dataset.c;
-        if (valid(sr, sc, r, c) && !grid[r][c]) {
+        if (valid(sr,sc,r,c) && !grid[r][c]) {
           const col = grid[sr][sc];
           grid[sr][sc] = null;
           grid[r][c] = col;
-          pieces = pieces.filter(p => !(p.r === sr && p.c === sc));
-          pieces.push({ r, c, color: col });
+          pieces = pieces.filter(p => !(p.r===sr && p.c===sc));
+          pieces.push({r,c,color:col});
           moveCount++;
           render();
           if (win.every(w => grid[w.r][w.c] === w.color)) {
@@ -287,7 +304,7 @@
       }
     }
 
-    function valid(r1, c1, r2, c2) {
+    function valid(r1,c1,r2,c2) {
       const dr = Math.abs(r1 - r2),
             dc = Math.abs(c1 - c2);
       return (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
@@ -296,7 +313,7 @@
     stopBtn.addEventListener('click', () => {
       active = false;
       clearInterval(timerInterval);
-      const grid = Array(4).fill().map(() => Array(4).fill(null));
+      const grid = Array(4).fill().map(()=>Array(4).fill(null));
       pieces.forEach(p => grid[p.r][p.c] = p.color);
       if (win.every(w => grid[w.r][w.c] === w.color)) {
         feedback.textContent = 'Correct – Goal Achieved!';
