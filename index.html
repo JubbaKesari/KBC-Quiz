@@ -72,18 +72,18 @@
     // Black knights now start where white did
     // White knights now start where black did
     let pieces = [
-      { r:0, c:1, color:'black' },  // was white
-      { r:2, c:2, color:'black' },  // was white
-      { r:3, c:0, color:'white' },  // was black
-      { r:3, c:2, color:'white' }   // was black
+      { r:0, c:1, color:'white' },  // was white
+      { r:2, c:2, color:'white' },  // was white
+      { r:3, c:0, color:'black' },  // was black
+      { r:3, c:2, color:'black' }   // was black
     ];
 
     // **New win condition**: swap them back to the original spots
     const win = [
-      { r:0, c:1, color:'white' },
-      { r:2, c:2, color:'white' },
-      { r:3, c:0, color:'black' },
-      { r:3, c:2, color:'black' }
+      { r:0, c:1, color:'black' },
+      { r:2, c:2, color:'black' },
+      { r:3, c:0, color:'white' },
+      { r:3, c:2, color:'white' }
     ];
 
     let selected = null,
