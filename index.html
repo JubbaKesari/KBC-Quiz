@@ -49,11 +49,10 @@
     </div>
     <div id="feedback" class="feedback"></div>
 
-    <!-- Self‑hosted solution video (repo root) -->
+    <!-- Self‑hosted solution video -->
     <div id="solutionContainer">
       <p>Solution Video:</p>
       <video id="solutionVideo" controls preload="metadata">
-        <!-- Note the source now points to the root file -->
         <source src="Knight%20Puzzle.mp4" type="video/mp4">
         Your browser doesn’t support HTML5 video.
       </video>
@@ -61,35 +60,45 @@
   </div>
 
   <script>
+    // Board shape mask
     const mask = [
       [0,1,0,0],
       [0,1,1,0],
       [0,1,1,1],
       [1,1,1,1]
     ];
+
+    // **Interchanged starting positions**:
+    // Black knights now start where white did
+    // White knights now start where black did
     let pieces = [
-      {r:0,c:1,color:'white'},
-      {r:2,c:2,color:'white'},
-      {r:3,c:0,color:'black'},
-      {r:3,c:2,color:'black'}
+      { r:0, c:1, color:'black' },  // was white
+      { r:2, c:2, color:'black' },  // was white
+      { r:3, c:0, color:'white' },  // was black
+      { r:3, c:2, color:'white' }   // was black
     ];
+
+    // **New win condition**: swap them back to the original spots
     const win = [
-      {r:3,c:0,color:'white'},
-      {r:3,c:2,color:'white'},
-      {r:0,c:1,color:'black'},
-      {r:2,c:2,color:'black'}
+      { r:0, c:1, color:'white' },
+      { r:2, c:2, color:'white' },
+      { r:3, c:0, color:'black' },
+      { r:3, c:2, color:'black' }
     ];
 
-    let selected = null, moveCount = 0, timeLeft = 900, active = true;
-    let timerInterval;
+    let selected = null,
+        moveCount = 0,
+        timeLeft = 900,
+        active = true,
+        timerInterval;
 
-    const board    = document.getElementById('chessboard');
-    const timerEl  = document.getElementById('timer');
-    const movesEl  = document.getElementById('moves');
-    const stopBtn  = document.getElementById('stopBtn');
-    const nextBtn  = document.getElementById('nextBtn');
-    const feedback = document.getElementById('feedback');
-    const solCont  = document.getElementById('solutionContainer');
+    const board    = document.getElementById('chessboard'),
+          timerEl  = document.getElementById('timer'),
+          movesEl  = document.getElementById('moves'),
+          stopBtn  = document.getElementById('stopBtn'),
+          nextBtn  = document.getElementById('nextBtn'),
+          feedback = document.getElementById('feedback'),
+          solCont  = document.getElementById('solutionContainer');
 
     function start() {
       render();
@@ -102,8 +111,8 @@
     }
 
     function updateTimer() {
-      const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
-      const s = (timeLeft%60).toString().padStart(2,'0');
+      const m = Math.floor(timeLeft/60).toString().padStart(2,'0'),
+            s = (timeLeft%60).toString().padStart(2,'0');
       timerEl.textContent = `Time: ${m}:${s}`;
     }
 
@@ -115,11 +124,13 @@
       selected = null;
       movesEl.textContent = `Moves: ${moveCount}`;
 
+      // Build grid state
       const grid = Array(4).fill().map(()=>Array(4).fill(null));
       pieces.forEach(p => grid[p.r][p.c] = p.color);
 
-      for (let r=0; r<4; r++) {
-        for (let c=0; c<4; c++) {
+      // Draw cells
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
           const cell = document.createElement('div');
           cell.className = 'cell';
           if (!mask[r][c]) cell.classList.add('hidden');
@@ -142,8 +153,9 @@
           cell.classList.add('selected');
         }
       } else {
-        const sr = +selected.dataset.r, sc = +selected.dataset.c;
-        if (valid(sr, sc, r, c) && !grid[r][c]) {
+        const sr = +selected.dataset.r,
+              sc = +selected.dataset.c;
+        if (valid(sr,sc,r,c) && !grid[r][c]) {
           const col = grid[sr][sc];
           grid[sr][sc] = null;
           grid[r][c] = col;
@@ -151,6 +163,7 @@
           pieces.push({r,c,color:col});
           moveCount++;
           render();
+          // Check win
           if (win.every(w => grid[w.r][w.c] === w.color)) {
             feedback.textContent = 'Correct – Goal Achieved!';
             feedback.className = 'feedback correct';
@@ -164,7 +177,8 @@
     }
 
     function valid(r1,c1,r2,c2) {
-      const dr = Math.abs(r1-r2), dc = Math.abs(c1-c2);
+      const dr = Math.abs(r1-r2),
+            dc = Math.abs(c1-c2);
       return (dr===2 && dc===1) || (dr===1 && dc===2);
     }
 
@@ -185,6 +199,7 @@
 
     nextBtn.addEventListener('click', () => alert('Proceed to next quiz'));
 
+    // Start everything
     start();
   </script>
 </body>
