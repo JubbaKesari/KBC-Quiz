@@ -49,11 +49,11 @@
     </div>
     <div id="feedback" class="feedback"></div>
 
-    <!-- Self‑hosted solution video -->
+    <!-- Self‑hosted solution video (repo root) -->
     <div id="solutionContainer">
       <p>Solution Video:</p>
       <video id="solutionVideo" controls preload="metadata">
-        <!-- Make sure Knight Puzzle.mp4 is uploaded under videos/ -->
+        <!-- Note the source now points to the root file -->
         <source src="Knight%20Puzzle.mp4" type="video/mp4">
         Your browser doesn’t support HTML5 video.
       </video>
@@ -143,7 +143,7 @@
         }
       } else {
         const sr = +selected.dataset.r, sc = +selected.dataset.c;
-        if (valid(sr,sc,r,c) && !grid[r][c]) {
+        if (valid(sr, sc, r, c) && !grid[r][c]) {
           const col = grid[sr][sc];
           grid[sr][sc] = null;
           grid[r][c] = col;
