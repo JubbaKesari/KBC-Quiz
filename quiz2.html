@@ -82,10 +82,7 @@
       gap: 16px;
       margin: 20px 0;
     }
-    .options input[type="radio"] {
-      display: none;
-    }
-    .options label {
+    .option-item {
       display: block;
       background: #333;
       border-radius: 6px;
@@ -95,19 +92,26 @@
       text-align: center;
       width: 140px;
     }
-    .options label img {
+    .option-item img {
       max-width: 100%;
       display: block;
       margin-bottom: 8px;
     }
-    .options label:hover {
+    .option-item:hover {
       background: #0ff;
       transform: translateY(-4px);
     }
-    .options input[type="radio"]:checked + label {
+    .option-item input {
+      display: none;
+    }
+    .option-item input:checked + .label-content {
       background: #0ff;
       color: #111;
       box-shadow: 0 0 8px #0ff;
+    }
+    .label-content {
+      display: block;
+      pointer-events: none;
     }
 
     /* Controls & feedback */
@@ -181,30 +185,39 @@
       <img src="Quiz 2.PNG" alt="Cube net puzzle">
     </div>
 
-    <div class="options">
-      <input type="radio" id="optA" name="answer" value="A">
-      <label for="optA">
-        <img src="OptionA.PNG" alt="Option A">
-        A
-      </label>
-
-      <input type="radio" id="optB" name="answer" value="B">
-      <label for="optB">
-        <img src="OptionB.PNG" alt="Option B">
-        B
-      </label>
-
-      <input type="radio" id="optC" name="answer" value="C">
-      <label for="optC">
-        <img src="OptionC.PNG" alt="Option C">
-        C
-      </label>
-
-      <input type="radio" id="optD" name="answer" value="D">
-      <label for="optD">
-        <img src="OptionD.PNG" alt="Option D">
-        D
-      </label>
+    <div class="options" id="optionsContainer">
+      <!-- Option A -->
+      <div class="option-item">
+        <input type="radio" id="optA" name="answer" value="A">
+        <div class="label-content">
+          <img src="OptionA.PNG" alt="Option A">
+          A
+        </div>
+      </div>
+      <!-- Option B -->
+      <div class="option-item">
+        <input type="radio" id="optB" name="answer" value="B">
+        <div class="label-content">
+          <img src="OptionB.PNG" alt="Option B">
+          B
+        </div>
+      </div>
+      <!-- Option C -->
+      <div class="option-item">
+        <input type="radio" id="optC" name="answer" value="C">
+        <div class="label-content">
+          <img src="OptionC.PNG" alt="Option C">
+          C
+        </div>
+      </div>
+      <!-- Option D -->
+      <div class="option-item">
+        <input type="radio" id="optD" name="answer" value="D">
+        <div class="label-content">
+          <img src="OptionD.PNG" alt="Option D">
+          D
+        </div>
+      </div>
     </div>
 
     <div class="actions">
@@ -229,29 +242,49 @@
   </div>
 
   <script>
-    const lockBtn = document.getElementById('lockBtn');
-    const feedback = document.getElementById('feedback');
-    const solCont  = document.getElementById('solutionContainer');
-
-    lockBtn.addEventListener('click', () => {
-      const choice = document.querySelector('input[name="answer"]:checked');
-      if (!choice) {
-        alert('Please select an option.');
-        return;
+    // Fisher–Yates shuffle
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
-      if (!confirm('Do you wish to lock your response?')) return;
+    }
 
-      if (choice.value === 'C') {
-        feedback.textContent = '✅ Correct! Option C is the right net.';
-        feedback.className = 'feedback correct';
-      } else {
-        feedback.textContent = '❌ Wrong. Watch the solution below.';
-        feedback.className = 'feedback wrong';
-        solCont.style.display = 'block';
-      }
+    function shuffleOptions() {
+      const container = document.getElementById('optionsContainer');
+      const items = Array.from(container.children);
+      shuffle(items);
+      container.innerHTML = '';
+      items.forEach(item => container.appendChild(item));
+    }
 
-      document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
-      lockBtn.disabled = true;
+    document.addEventListener('DOMContentLoaded', () => {
+      shuffleOptions();
+
+      const lockBtn = document.getElementById('lockBtn');
+      const feedback = document.getElementById('feedback');
+      const solCont  = document.getElementById('solutionContainer');
+
+      lockBtn.addEventListener('click', () => {
+        const choice = document.querySelector('input[name="answer"]:checked');
+        if (!choice) {
+          alert('Please select an option.');
+          return;
+        }
+        if (!confirm('Do you wish to lock your response?')) return;
+
+        if (choice.value === 'C') {
+          feedback.textContent = '✅ Correct! Option C is the right net.';
+          feedback.className = 'feedback correct';
+        } else {
+          feedback.textContent = '❌ Wrong. Watch the solution below.';
+          feedback.className = 'feedback wrong';
+          solCont.style.display = 'block';
+        }
+
+        document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
+        lockBtn.disabled = true;
+      });
     });
   </script>
 </body>
