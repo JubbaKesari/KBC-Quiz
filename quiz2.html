@@ -14,151 +14,76 @@
       line-height: 1.4;
       padding: 20px;
     }
-
-    /* Nav bar */
     nav {
-      text-align: center;
-      margin-bottom: 20px;
+      text-align: center; margin-bottom: 20px;
     }
     nav a, nav strong {
-      font-size: 14px;
-      text-decoration: none;
-      margin: 0 8px;
-      color: #aaa;
-      transition: color 0.2s;
+      font-size: 14px; text-decoration: none; margin: 0 8px;
+      color: #aaa; transition: color 0.2s;
     }
     nav a:hover { color: #0ff; }
     nav strong { color: #f55; }
-
-    /* Main container */
     .container {
-      max-width: 700px;
-      margin: auto;
-      background: #1e1e1e;
-      border-left: 4px solid #0ff;
-      border-radius: 8px;
-      overflow: hidden;
+      max-width: 700px; margin: auto;
+      background: #1e1e1e; border-left: 4px solid #0ff;
+      border-radius: 8px; overflow: hidden;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
-
-    /* Header */
     .header {
-      background: #222;
-      padding: 20px;
-      text-align: center;
+      background: #222; padding: 20px; text-align: center;
     }
-    .header h1 {
-      color: #0ff;
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-    .header .level {
-      color: #f55;
-      font-size: 14px;
-    }
-
-    /* Question area */
+    .header h1 { color: #0ff; font-size: 28px; margin-bottom:6px; }
+    .header .level { color: #f55; font-size: 14px; }
     .question {
-      padding: 20px;
-      text-align: center;
-      background: #1b1b1b;
+      padding: 20px; text-align: center; background: #1b1b1b;
     }
-    .question p {
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
+    .question p { margin-bottom: 16px; font-size: 16px; }
     .question img {
-      max-width: 100%;
-      border: 2px solid #333;
-      border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+      max-width: 100%; border: 2px solid #333;
+      border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.7);
     }
-
-    /* Options styled as buttons with images */
     .options {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin: 20px 0;
+      display: flex; justify-content: space-around;
+      flex-wrap: wrap; gap: 16px; margin: 20px 0;
     }
     .option-item {
-      display: block;
-      background: #333;
-      border-radius: 6px;
-      cursor: pointer;
-      padding: 10px;
-      transition: background 0.2s, transform 0.2s;
+      width: 140px; background: #333; border-radius: 6px;
+      cursor: pointer; padding: 10px; transition: background .2s, transform .2s;
       text-align: center;
-      width: 140px;
-    }
-    .option-item img {
-      max-width: 100%;
-      display: block;
-      margin-bottom: 8px;
     }
     .option-item:hover {
-      background: #0ff;
-      transform: translateY(-4px);
+      background: #0ff; transform: translateY(-4px); color: #111;
     }
-    .option-item input {
-      display: none;
-    }
+    .option-item input { display: none; }
     .option-item input:checked + .label-content {
-      background: #0ff;
-      color: #111;
-      box-shadow: 0 0 8px #0ff;
+      background: #0ff; color: #111; box-shadow: 0 0 8px #0ff;
     }
-    .label-content {
-      display: block;
-      pointer-events: none;
-    }
-
-    /* Controls & feedback */
+    .label-content { pointer-events: none; }
     .actions {
-      text-align: center;
-      padding: 20px;
-      background: #222;
+      text-align: center; padding: 20px; background: #222;
     }
     button {
-      margin: 0 8px;
-      padding: 10px 20px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
+      margin: 0 8px; padding: 10px 20px; font-size: 14px;
+      border: none; border-radius: 6px; cursor: pointer;
+      transition: background .2s, transform .2s;
     }
     button:hover { transform: translateY(-2px); }
-    #lockBtn {
-      background: #0ff; color: #111;
-    }
+    #lockBtn { background: #0ff; color: #111; }
     #lockBtn:hover { background: #0cc; }
     .actions a button {
       background: #444; color: #eee;
     }
     .actions a button:hover { background: #666; }
-
     .feedback {
-      margin: 16px 0;
-      font-size: 16px;
-      font-weight: bold;
+      margin: 16px 0; font-size: 16px; font-weight: bold;
     }
     .feedback.correct { color: #0f0; }
     .feedback.wrong   { color: #f33; }
-
-    /* Solution video */
     #solutionContainer {
-      display: none;
-      padding: 20px;
-      background: #1b1b1b;
-      text-align: center;
+      display: none; padding: 20px; background: #1b1b1b; text-align: center;
     }
     #solutionContainer video {
-      width: 100%;
-      max-height: 300px;
-      border-radius: 6px;
-      background: #000;
+      width: 100%; max-height: 300px; border-radius: 6px; background: #000;
     }
   </style>
 </head>
@@ -185,37 +110,29 @@
       <img src="Quiz 2.PNG" alt="Cube net puzzle">
     </div>
 
-    <div class="options" id="optionsContainer">
-      <!-- Option A -->
+    <div class="options">
       <div class="option-item">
         <input type="radio" id="optA" name="answer" value="A">
         <div class="label-content">
-          <img src="OptionA.PNG" alt="Option A">
-          A
+          <img src="OptionA.PNG" alt="Option A"><br>A
         </div>
       </div>
-      <!-- Option B -->
       <div class="option-item">
         <input type="radio" id="optB" name="answer" value="B">
         <div class="label-content">
-          <img src="OptionB.PNG" alt="Option B">
-          B
+          <img src="OptionB.PNG" alt="Option B"><br>B
         </div>
       </div>
-      <!-- Option C -->
       <div class="option-item">
         <input type="radio" id="optC" name="answer" value="C">
         <div class="label-content">
-          <img src="OptionC.PNG" alt="Option C">
-          C
+          <img src="OptionC.PNG" alt="Option C"><br>C
         </div>
       </div>
-      <!-- Option D -->
       <div class="option-item">
         <input type="radio" id="optD" name="answer" value="D">
         <div class="label-content">
-          <img src="OptionD.PNG" alt="Option D">
-          D
+          <img src="OptionD.PNG" alt="Option D"><br>D
         </div>
       </div>
     </div>
@@ -242,24 +159,25 @@
   </div>
 
   <script>
-    // Fisher–Yates shuffle
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
+    // Shuffle only the <img> inside each .option-item
+    function shuffleImages() {
+      const images = Array.from(document.querySelectorAll('.option-item img'));
+      // extract src & alt
+      const data = images.map(img => ({ src: img.src, alt: img.alt }));
+      // Fisher–Yates
+      for (let i = data.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [data[i], data[j]] = [data[j], data[i]];
       }
-    }
-
-    function shuffleOptions() {
-      const container = document.getElementById('optionsContainer');
-      const items = Array.from(container.children);
-      shuffle(items);
-      container.innerHTML = '';
-      items.forEach(item => container.appendChild(item));
+      // reassign
+      images.forEach((img, idx) => {
+        img.src = data[idx].src;
+        img.alt = data[idx].alt;
+      });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      shuffleOptions();
+      shuffleImages();
 
       const lockBtn = document.getElementById('lockBtn');
       const feedback = document.getElementById('feedback');
