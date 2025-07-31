@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Quiz 2 – Fruit Cube Puzzle</title>
+  <style>
+    /* Base resets */
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: #eee;
+      line-height: 1.4;
+      padding: 20px;
+    }
+
+    /* Nav bar */
+    nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    nav a, nav strong {
+      font-size: 14px;
+      text-decoration: none;
+      margin: 0 8px;
+      color: #aaa;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #0ff; }
+    nav strong { color: #f55; }
+
+    /* Main container */
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #1e1e1e;
+      border-left: 4px solid #0ff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    /* Header */
+    .header {
+      background: #222;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #0ff;
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+    .header .level {
+      color: #f55;
+      font-size: 14px;
+    }
+
+    /* Question area */
+    .question {
+      padding: 20px;
+      text-align: center;
+      background: #1b1b1b;
+    }
+    .question p {
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+    .question img {
+      max-width: 100%;
+      border: 2px solid #333;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+    }
+
+    /* Options styled as buttons with images */
+    .options {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .options input[type="radio"] {
+      display: none;
+    }
+    .options label {
+      display: block;
+      background: #333;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 10px;
+      transition: background 0.2s, transform 0.2s;
+      text-align: center;
+      width: 140px;
+    }
+    .options label img {
+      max-width: 100%;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .options label:hover {
+      background: #0ff;
+      transform: translateY(-4px);
+    }
+    .options input[type="radio"]:checked + label {
+      background: #0ff;
+      color: #111;
+      box-shadow: 0 0 8px #0ff;
+    }
+
+    /* Controls & feedback */
+    .actions {
+      text-align: center;
+      padding: 20px;
+      background: #222;
+    }
+    button {
+      margin: 0 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    #lockBtn {
+      background: #0ff; color: #111;
+    }
+    #lockBtn:hover { background: #0cc; }
+    .actions a button {
+      background: #444; color: #eee;
+    }
+    .actions a button:hover { background: #666; }
+
+    .feedback {
+      margin: 16px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .feedback.correct { color: #0f0; }
+    .feedback.wrong   { color: #f33; }
+
+    /* Solution video */
+    #solutionContainer {
+      display: none;
+      padding: 20px;
+      background: #1b1b1b;
+      text-align: center;
+    }
+    #solutionContainer video {
+      width: 100%;
+      max-height: 300px;
+      border-radius: 6px;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="quiz1.html">Quiz 1</a> |
+    <strong>Quiz 2</strong> |
+    <a href="index.html">Home</a> |
+    <a href="quiz3.html">Quiz 3</a> |
+    … |
+    <a href="quiz15.html">Quiz 15</a>
+  </nav>
+
+  <div class="container">
+
+    <div class="header">
+      <h1>Quiz 2</h1>
+      <div class="level">Level – Easy</div>
+    </div>
+
+    <div class="question">
+      <p>Which net (unfolded cube) can fold into the 3D arrangement shown?</p>
+      <img src="Quiz 2.PNG" alt="Cube net puzzle">
+    </div>
+
+    <div class="options">
+      <input type="radio" id="optA" name="answer" value="A">
+      <label for="optA">
+        <img src="OptionA.PNG" alt="Option A">
+        A
+      </label>
+
+      <input type="radio" id="optB" name="answer" value="B">
+      <label for="optB">
+        <img src="OptionB.PNG" alt="Option B">
+        B
+      </label>
+
+      <input type="radio" id="optC" name="answer" value="C">
+      <label for="optC">
+        <img src="OptionC.PNG" alt="Option C">
+        C
+      </label>
+
+      <input type="radio" id="optD" name="answer" value="D">
+      <label for="optD">
+        <img src="OptionD.PNG" alt="Option D">
+        D
+      </label>
+    </div>
+
+    <div class="actions">
+      <button id="lockBtn">Lock Your Response</button>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <div id="solutionContainer">
+      <p>Solution Video:</p>
+      <video controls>
+        <source src="Quiz 2.mp4" type="video/mp4">
+        Your browser doesn’t support HTML5 video.
+      </video>
+    </div>
+
+    <div class="actions">
+      <a href="quiz1.html"><button>← Previous Quiz</button></a>
+      <a href="quiz3.html"><button>Next Quiz →</button></a>
+    </div>
+
+  </div>
+
+  <script>
+    const lockBtn = document.getElementById('lockBtn');
+    const feedback = document.getElementById('feedback');
+    const solCont  = document.getElementById('solutionContainer');
+
+    lockBtn.addEventListener('click', () => {
+      const choice = document.querySelector('input[name="answer"]:checked');
+      if (!choice) {
+        alert('Please select an option.');
+        return;
+      }
+      if (!confirm('Do you wish to lock your response?')) return;
+
+      if (choice.value === 'C') {
+        feedback.textContent = '✅ Correct! Option C is the right net.';
+        feedback.className = 'feedback correct';
+      } else {
+        feedback.textContent = '❌ Wrong. Watch the solution below.';
+        feedback.className = 'feedback wrong';
+        solCont.style.display = 'block';
+      }
+
+      document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
+      lockBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>
