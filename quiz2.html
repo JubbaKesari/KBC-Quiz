@@ -10,7 +10,7 @@
 
     /* Fullscreen kiosk overlay */
     #kioskOverlay {
-      position: fixed; top:0; left:0;
+      position:fixed; top:0; left:0;
       width:100%; height:100%;
       background:#000; color:#fff;
       display:flex; align-items:center; justify-content:center;
@@ -60,7 +60,7 @@
       display:block; background:#333; border-radius:6px;
       cursor:pointer; padding:10px; transition:background .2s,transform .2s;
       text-align:center; width:140px; color:#eee;
-      pointer-events: auto;
+      pointer-events:auto;
     }
     .options label.disabled {
       opacity:0.5; cursor:default;
@@ -73,7 +73,7 @@
     }
 
     .actions {
-      text-align:center; padding:20px; background:#222;
+      text-align:center; padding:20px; background:#222; position:relative;
     }
     button {
       margin:0 8px; padding:10px 20px; font-size:14px;
@@ -92,6 +92,26 @@
     #lockBtn:hover:not(:disabled) {
       background:#0cc;
     }
+
+    /* Inline confirmation prompt */
+    #confirmBox {
+      display:none;
+      margin-top:16px;
+      padding:12px;
+      background:#333;
+      border:2px solid #0ff;
+      border-radius:6px;
+    }
+    #confirmBox p { margin-bottom:12px; }
+    #confirmBox button {
+      margin:0 6px;
+      padding:6px 12px;
+      font-size:14px;
+      border:none; border-radius:4px;
+      cursor:pointer;
+    }
+    #confirmYes { background:#0f0; }
+    #confirmNo  { background:#f33; }
 
     .feedback {
       margin:16px 0; font-size:16px; font-weight:bold;
@@ -143,6 +163,13 @@
     <div class="actions">
       <button id="lockBtn">Lock Your Response</button>
       <a href="quiz3.html"><button id="nextBtn">Next Quiz →</button></a>
+
+      <!-- Inline confirmation prompt -->
+      <div id="confirmBox">
+        <p>Do you wish to lock your response?</p>
+        <button id="confirmYes">Yes, lock it</button>
+        <button id="confirmNo">No, go back</button>
+      </div>
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -151,7 +178,6 @@
       <p>Solution Video:</p>
       <video controls>
         <source src="Quiz 2.mp4" type="video/mp4">
-        Your browser doesn’t support HTML5 video.
       </video>
     </div>
   </div>
@@ -160,6 +186,9 @@
     const overlay     = document.getElementById('kioskOverlay');
     const progressBar = document.getElementById('progressBar');
     const lockBtn     = document.getElementById('lockBtn');
+    const confirmBox  = document.getElementById('confirmBox');
+    const confirmYes  = document.getElementById('confirmYes');
+    const confirmNo   = document.getElementById('confirmNo');
     const feedback    = document.getElementById('feedback');
     const solCont     = document.getElementById('solutionContainer');
     const inputs      = document.querySelectorAll('input[name="answer"]');
@@ -170,78 +199,97 @@
       D: document.getElementById('labelD')
     };
 
-    // Build progress bar
-    for (let i = 1; i <= 15; i++) {
-      const d = document.createElement('div');
-      d.className = 'quiz-item';
-      d.dataset.quiz = i;
-      d.textContent = i;
+    // 1) Build progress bar
+    for (let i=1; i<=15; i++){
+      const d=document.createElement('div');
+      d.className='quiz-item';
+      d.dataset.quiz=i;
+      d.textContent=i;
       progressBar.appendChild(d);
     }
-    // Restore statuses
-    document.querySelectorAll('.quiz-item').forEach(item => {
-      const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
-      if (st) item.classList.add(st);
+    // 2) Restore statuses
+    document.querySelectorAll('.quiz-item').forEach(item=>{
+      const st = sessionStorage.getItem('quiz'+item.dataset.quiz);
+      if(st) item.classList.add(st);
     });
-    // Mark current
+    // 3) Mark current
     document.querySelector('.quiz-item[data-quiz="2"]').classList.add('current');
 
-    // Kiosk overlay click → enter fullscreen
-    overlay.addEventListener('click', async () => {
+    // 4) Overlay click → fullscreen
+    overlay.addEventListener('click', async ()=>{
       try { await document.documentElement.requestFullscreen(); }
-      catch (e) { console.warn(e); }
-      overlay.style.display = 'none';
+      catch(e){ console.warn(e); }
+      overlay.style.display='none';
     });
 
-    // If already answered, disable
+    // 5) If already answered, disable immediately
     const prev = sessionStorage.getItem('quiz2');
-    if (prev) {
+    if(prev){
       const me = document.querySelector('.quiz-item[data-quiz="2"]');
       me.classList.replace('current', prev);
-      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
-      lockBtn.disabled = true;
+      inputs.forEach(i=>{ i.disabled=true; labels[i.value].classList.add('disabled'); });
+      lockBtn.disabled=true;
       feedback.textContent = prev==='correct'
         ? '✅ You already answered correctly.'
         : '❌ You have answered wrongly.';
       feedback.classList.add(prev==='correct'?'correct':'wrong');
-      if (prev==='wrong') solCont.style.display = 'block';
+      if(prev==='wrong') solCont.style.display='block';
     }
 
-    // Lock response
-    lockBtn.addEventListener('click', () => {
-      const choice = document.querySelector('input[name="answer"]:checked');
-      if (!choice) { alert('Please select an option.'); return; }
-      if (!confirm('Do you wish to lock your response?')) return;
+    // 6) On Lock click → show inline confirm
+    lockBtn.addEventListener('click', ()=>{
+      confirmBox.style.display='block';
+      lockBtn.disabled=true;
+    });
 
-      const correct = (choice.value === 'C');
-      sessionStorage.setItem('quiz2', correct ? 'correct' : 'wrong');
+    confirmNo.addEventListener('click', ()=>{
+      confirmBox.style.display='none';
+      lockBtn.disabled=false;
+    });
+
+    confirmYes.addEventListener('click', async ()=>{
+      // re-enter fullscreen if lost
+      if(!document.fullscreenElement){
+        try{ await document.documentElement.requestFullscreen(); }
+        catch(e){ console.warn(e); }
+      }
+      confirmBox.style.display='none';
+
+      const choice = document.querySelector('input[name="answer"]:checked');
+      if(!choice){
+        alert('Please select an option.');
+        lockBtn.disabled=false;
+        return;
+      }
+
+      const correct = choice.value==='C';
+      sessionStorage.setItem('quiz2', correct?'correct':'wrong');
 
       const me = document.querySelector('.quiz-item[data-quiz="2"]');
       me.classList.remove('current');
-      me.classList.add(correct ? 'correct' : 'wrong');
+      me.classList.add(correct?'correct':'wrong');
 
       feedback.textContent = correct
         ? '✅ Correct! Option C is the right net.'
         : '❌ Wrong. Watch the solution below.';
-      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
-      if (!correct) solCont.style.display = 'block';
+      feedback.className = 'feedback ' + (correct?'correct':'wrong');
+      if(!correct) solCont.style.display='block';
 
-      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
-      lockBtn.disabled = true;
+      inputs.forEach(i=>{ i.disabled=true; labels[i.value].classList.add('disabled'); });
     });
 
-    // Disable on tab switch or exit fullscreen
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        inputs.forEach(i => i.disabled = true);
-        lockBtn.disabled = true;
+    // 7) Lock on tab switch / exit fullscreen
+    document.addEventListener('visibilitychange', ()=>{
+      if(document.hidden){
+        inputs.forEach(i=>i.disabled=true);
+        lockBtn.disabled=true;
         alert('Quiz paused because you left the page.');
       }
     });
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        inputs.forEach(i => i.disabled = true);
-        lockBtn.disabled = true;
+    document.addEventListener('fullscreenchange', ()=>{
+      if(!document.fullscreenElement){
+        inputs.forEach(i=>i.disabled=true);
+        lockBtn.disabled=true;
         alert('Quiz locked because you exited fullscreen.');
       }
     });
