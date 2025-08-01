@@ -57,7 +57,7 @@
     .options label {
       padding:10px 24px; background:#333; border-radius:6px;
       cursor:pointer; transition:background .2s,color .2s; font-size:16px;
-      pointer-events: auto;
+      pointer-events:auto;
     }
     .options label.disabled {
       opacity:0.5; cursor:default;
@@ -96,7 +96,10 @@
       margin:0 6px;
       padding:6px 12px;
       font-size:14px;
+      border:none; border-radius:4px; cursor:pointer;
     }
+    #confirmYes { background:#0f0; }
+    #confirmNo  { background:#f33; }
 
     .feedback {
       margin:12px 0; font-weight:bold; font-size:16px;
@@ -164,6 +167,7 @@
     const overlay     = document.getElementById('kioskOverlay');
     const progressBar = document.getElementById('progressBar');
     const lockBtn     = document.getElementById('lockBtn');
+    const nextBtn     = document.getElementById('nextBtn');
     const confirmBox  = document.getElementById('confirmBox');
     const confirmYes  = document.getElementById('confirmYes');
     const confirmNo   = document.getElementById('confirmNo');
@@ -175,7 +179,13 @@
       no:  document.getElementById('labelNo')
     };
 
-    // Build progress bar
+    // Navigation guard
+    let allowNav = false;
+    nextBtn.addEventListener('click', () => {
+      allowNav = true;
+    });
+
+    // 1) Build progress bar
     for (let i = 1; i <= 15; i++) {
       const d = document.createElement('div');
       d.className = 'quiz-item';
@@ -183,22 +193,22 @@
       d.textContent = i;
       progressBar.appendChild(d);
     }
-    // Restore statuses
+    // 2) Restore statuses
     document.querySelectorAll('.quiz-item').forEach(item => {
       const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
       if (st) item.classList.add(st);
     });
-    // Mark current
+    // 3) Mark current
     document.querySelector('.quiz-item[data-quiz="1"]').classList.add('current');
 
-    // Fullscreen overlay
+    // 4) Fullscreen overlay
     overlay.addEventListener('click', async () => {
       try { await document.documentElement.requestFullscreen(); }
       catch(e){ console.warn(e) }
       overlay.style.display = 'none';
     });
 
-    // If answered already
+    // 5) If answered already
     const prev = sessionStorage.getItem('quiz1');
     if (prev) {
       const me = document.querySelector('.quiz-item[data-quiz="1"]');
@@ -212,17 +222,17 @@
       if (prev==='wrong') solCont.style.display = 'block';
     }
 
-    // On lock click → show inline confirm
+    // 6) Lock click → show inline confirm
     lockBtn.addEventListener('click', () => {
       confirmBox.style.display = 'block';
-      lockBtn.disabled = true; // prevent double-click
+      lockBtn.disabled = true;
     });
-    // Cancel
+
     confirmNo.addEventListener('click', () => {
       confirmBox.style.display = 'none';
       lockBtn.disabled = false;
     });
-    // Confirm
+
     confirmYes.addEventListener('click', async () => {
       // re-enter fullscreen if lost
       if (!document.fullscreenElement) {
@@ -241,7 +251,7 @@
       const correct = choice.value === 'no';
       sessionStorage.setItem('quiz1', correct?'correct':'wrong');
 
-      // update progress circle
+      // update circle
       const me = document.querySelector('.quiz-item[data-quiz="1"]');
       me.classList.remove('current');
       me.classList.add(correct?'correct':'wrong');
@@ -253,11 +263,12 @@
       feedback.className = 'feedback ' + (correct?'correct':'wrong');
       if (!correct) solCont.style.display = 'block';
 
-      inputs.forEach(i => { i.disabled=true; labels[i.value].classList.add('disabled'); });
+      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
     });
 
-    // Lock on tab switch / exit fullscreen
+    // 7) Pause/Lock on tab switch or exit fullscreen, unless navigating
     document.addEventListener('visibilitychange', () => {
+      if (allowNav) return;
       if (document.hidden) {
         inputs.forEach(i => i.disabled = true);
         lockBtn.disabled = true;
@@ -265,6 +276,7 @@
       }
     });
     document.addEventListener('fullscreenchange', () => {
+      if (allowNav) return;
       if (!document.fullscreenElement) {
         inputs.forEach(i => i.disabled = true);
         lockBtn.disabled = true;
