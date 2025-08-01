@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Knight Puzzle – Quiz 4</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .quiz-header {
+      padding: 10px;
+    }
+
+    .level {
+      font-size: 16px;
+      color: limegreen;
+      margin-bottom: 10px;
+    }
+
+    .circle-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+    }
+
+    .circle-image {
+      max-width: 300px;
+      width: 90%;
+    }
+
+    .options {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px;
+    }
+
+    .option-button {
+      background-color: #222;
+      border: 2px solid #888;
+      color: white;
+      padding: 15px 25px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option-button:hover {
+      background-color: #555;
+    }
+
+    .option-button.selected {
+      background-color: teal;
+    }
+
+    .bottom-bar {
+      margin-top: 20px;
+    }
+
+    .timer {
+      font-size: 20px;
+      color: yellow;
+      margin: 10px;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 1; }
+      to { opacity: 0.6; }
+    }
+
+    .circle-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: gray;
+    }
+
+    .circle.active { background-color: blue; }
+    .circle.completed { background-color: green; }
+
+    .warning-msg {
+      color: orange;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-header">
+    <div class="level">Level – Easy</div>
+    <div class="circle-nav">
+      <div class="circle completed"></div>
+      <div class="circle completed"></div>
+      <div class="circle completed"></div>
+      <div class="circle active"></div>
+      <div class="circle"></div>
+    </div>
+  </div>
+
+  <div class="circle-container">
+    <img class="circle-image" src="Quiz4.PNG" alt="Quiz Question">
+  </div>
+
+  <div class="options">
+    <button class="option-button" onclick="selectOption(this, 'five')">Five</button>
+    <button class="option-button" onclick="selectOption(this, 'six')">Six</button>
+    <button class="option-button" onclick="selectOption(this, 'seven')">Seven</button>
+    <button class="option-button" onclick="selectOption(this, 'eight')">Eight</button>
+  </div>
+
+  <div class="timer" id="timer">Time Left: 60s</div>
+
+  <div class="bottom-bar">
+    <button onclick="lockResponse()" id="lockBtn">🔒 Lock Your Response</button>
+    <button onclick="goToNextQuiz()" id="nextBtn" disabled>➡️ Next Quiz</button>
+    <div class="warning-msg" id="warningMsg"></div>
+  </div>
+
+  <script>
+    let selected = null;
+    let locked = false;
+    let timeLeft = 60;
+    let hasLeftPage = false;
+
+    // Timer countdown
+    const timerEl = document.getElementById("timer");
+    const interval = setInterval(() => {
+      if (timeLeft > 0 && !locked) {
+        timeLeft--;
+        timerEl.textContent = `Time Left: ${timeLeft}s`;
+      }
+      if (timeLeft === 0 && !locked) {
+        lockResponse();
+      }
+    }, 1000);
+
+    // Option select
+    function selectOption(button, value) {
+      if (locked) return;
+      selected = value;
+      document.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
+      button.classList.add('selected');
+    }
+
+    function lockResponse() {
+      if (!selected || locked) return;
+      locked = true;
+      document.getElementById("lockBtn").disabled = true;
+      document.getElementById("nextBtn").disabled = false;
+      localStorage.setItem("quiz4", selected);
+    }
+
+    function goToNextQuiz() {
+      window.location.href = "quiz5.html";
+    }
+
+    // Tab/Window switch detection
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && !locked && !hasLeftPage) {
+        hasLeftPage = true;
+        document.getElementById("warningMsg").innerText = "⚠️ Quiz paused because you left the page.";
+        lockResponse();
+      }
+    });
+
+    // Prevent re-attempt
+    window.onload = function() {
+      const prev = localStorage.getItem("quiz4");
+      if (prev) {
+        locked = true;
+        document.getElementById("lockBtn").disabled = true;
+        document.getElementById("nextBtn").disabled = false;
+        document.querySelectorAll('.option-button').forEach(btn => {
+          if (btn.textContent.toLowerCase() === prev) {
+            btn.classList.add("selected");
+          }
+        });
+      } else {
+        // Request fullscreen only if not already done
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      }
+    };
+  </script>
+</body>
+</html>
