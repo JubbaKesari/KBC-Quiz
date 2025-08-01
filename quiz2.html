@@ -8,6 +8,17 @@
     * { box-sizing: border-box; margin:0; padding:0 }
     body { font-family:'Segoe UI',sans-serif; background:#111; color:#eee; padding:20px }
 
+    /* Fullscreen kiosk overlay */
+    #kioskOverlay {
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:#000; color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999; font-size:24px; text-align:center;
+      cursor:pointer;
+    }
+
+    /* Progress Bar */
     .progress-bar {
       display:flex; justify-content:center; gap:8px; margin-bottom:24px;
     }
@@ -20,6 +31,7 @@
     .quiz-item.correct { background:#0f0; box-shadow:0 0 6px #0f0; color:#111 }
     .quiz-item.wrong   { background:#f33; box-shadow:0 0 6px #f33; color:#111 }
 
+    /* Container */
     .container {
       max-width:700px; margin:auto;
       background:#1e1e1e; border-left:4px solid #0ff;
@@ -48,11 +60,12 @@
       display:block; background:#333; border-radius:6px;
       cursor:pointer; padding:10px; transition:background .2s,transform .2s;
       text-align:center; width:140px; color:#eee;
+      pointer-events: auto;
     }
-    .options label img {
-      max-width:100%; display:block; margin-bottom:8px;
+    .options label.disabled {
+      opacity:0.5; cursor:default;
     }
-    .options label:hover {
+    .options label:hover:not(.disabled) {
       background:#0ff; transform:translateY(-4px); color:#111;
     }
     .options input:checked+label {
@@ -67,9 +80,18 @@
       border:none; border-radius:6px; cursor:pointer;
       transition:background .2s,transform .2s;
     }
-    button:hover { transform:translateY(-2px) }
-    #lockBtn { background:#0ff; color:#111 }
-    #lockBtn:hover { background:#0cc }
+    button:hover:not(:disabled) {
+      transform:translateY(-2px);
+    }
+    #lockBtn {
+      background:#0ff; color:#111;
+    }
+    #lockBtn:disabled {
+      background:#555; cursor:default;
+    }
+    #lockBtn:hover:not(:disabled) {
+      background:#0cc;
+    }
 
     .feedback {
       margin:16px 0; font-size:16px; font-weight:bold;
@@ -87,6 +109,10 @@
 </head>
 <body>
 
+  <!-- Fullscreen Kiosk Overlay -->
+  <div id="kioskOverlay">Click anywhere to start the quiz in fullscreen</div>
+
+  <!-- Progress Bar -->
   <div class="progress-bar" id="progressBar"></div>
 
   <div class="container">
@@ -102,24 +128,16 @@
 
     <div class="options">
       <input type="radio" id="optA" name="answer" value="A">
-      <label for="optA">
-        <img src="OptionA.PNG" alt="A"><br>A
-      </label>
+      <label for="optA" id="labelA"><img src="OptionA.PNG" alt="A"><br>A</label>
 
       <input type="radio" id="optB" name="answer" value="B">
-      <label for="optB">
-        <img src="OptionB.PNG" alt="B"><br>B
-      </label>
+      <label for="optB" id="labelB"><img src="OptionB.PNG" alt="B"><br>B</label>
 
       <input type="radio" id="optC" name="answer" value="C">
-      <label for="optC">
-        <img src="OptionC.PNG" alt="C"><br>C
-      </label>
+      <label for="optC" id="labelC"><img src="OptionC.PNG" alt="C"><br>C</label>
 
       <input type="radio" id="optD" name="answer" value="D">
-      <label for="optD">
-        <img src="OptionD.PNG" alt="D"><br>D
-      </label>
+      <label for="optD" id="labelD"><img src="OptionD.PNG" alt="D"><br>D</label>
     </div>
 
     <div class="actions">
@@ -139,48 +157,93 @@
   </div>
 
   <script>
+    const overlay     = document.getElementById('kioskOverlay');
     const progressBar = document.getElementById('progressBar');
     const lockBtn     = document.getElementById('lockBtn');
     const feedback    = document.getElementById('feedback');
     const solCont     = document.getElementById('solutionContainer');
+    const inputs      = document.querySelectorAll('input[name="answer"]');
+    const labels      = {
+      A: document.getElementById('labelA'),
+      B: document.getElementById('labelB'),
+      C: document.getElementById('labelC'),
+      D: document.getElementById('labelD')
+    };
 
-    // build bar
-    for (let i=1; i<=15; i++){
-      const d=document.createElement('div');
-      d.className='quiz-item';
-      d.dataset.quiz=i;
-      d.textContent=i;
+    // Build progress bar
+    for (let i = 1; i <= 15; i++) {
+      const d = document.createElement('div');
+      d.className = 'quiz-item';
+      d.dataset.quiz = i;
+      d.textContent = i;
       progressBar.appendChild(d);
     }
-    // restore statuses
-    document.querySelectorAll('.quiz-item').forEach(item=>{
-      const st=localStorage.getItem('quiz'+item.dataset.quiz);
-      if(st) item.classList.add(st);
+    // Restore statuses
+    document.querySelectorAll('.quiz-item').forEach(item => {
+      const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
+      if (st) item.classList.add(st);
     });
-    // mark current
+    // Mark current
     document.querySelector('.quiz-item[data-quiz="2"]').classList.add('current');
 
-    lockBtn.addEventListener('click',()=>{
-      const choice=document.querySelector('input[name="answer"]:checked');
-      if(!choice) return alert('Please select an option.');
-      if(!confirm('Do you wish to lock your response?')) return;
+    // Kiosk overlay click → enter fullscreen
+    overlay.addEventListener('click', async () => {
+      try { await document.documentElement.requestFullscreen(); }
+      catch (e) { console.warn(e); }
+      overlay.style.display = 'none';
+    });
 
-      const correct=choice.value==='C';
-      localStorage.setItem('quiz2', correct?'correct':'wrong');
-      const me=document.querySelector('.quiz-item[data-quiz="2"]');
+    // If already answered, disable
+    const prev = sessionStorage.getItem('quiz2');
+    if (prev) {
+      const me = document.querySelector('.quiz-item[data-quiz="2"]');
+      me.classList.replace('current', prev);
+      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
+      lockBtn.disabled = true;
+      feedback.textContent = prev==='correct'
+        ? '✅ You already answered correctly.'
+        : '❌ You have answered wrongly.';
+      feedback.classList.add(prev==='correct'?'correct':'wrong');
+      if (prev==='wrong') solCont.style.display = 'block';
+    }
+
+    // Lock response
+    lockBtn.addEventListener('click', () => {
+      const choice = document.querySelector('input[name="answer"]:checked');
+      if (!choice) { alert('Please select an option.'); return; }
+      if (!confirm('Do you wish to lock your response?')) return;
+
+      const correct = (choice.value === 'C');
+      sessionStorage.setItem('quiz2', correct ? 'correct' : 'wrong');
+
+      const me = document.querySelector('.quiz-item[data-quiz="2"]');
       me.classList.remove('current');
-      me.classList.add(correct?'correct':'wrong');
+      me.classList.add(correct ? 'correct' : 'wrong');
 
-      if(correct){
-        feedback.textContent='✅ Correct! Option C is the right net.';
-        feedback.className='feedback correct';
-      } else {
-        feedback.textContent='❌ Wrong. Watch the solution below.';
-        feedback.className='feedback wrong';
-        solCont.style.display='block';
+      feedback.textContent = correct
+        ? '✅ Correct! Option C is the right net.'
+        : '❌ Wrong. Watch the solution below.';
+      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+      if (!correct) solCont.style.display = 'block';
+
+      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
+      lockBtn.disabled = true;
+    });
+
+    // Disable on tab switch or exit fullscreen
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        inputs.forEach(i => i.disabled = true);
+        lockBtn.disabled = true;
+        alert('Quiz paused because you left the page.');
       }
-      document.querySelectorAll('input[name="answer"]').forEach(i=>i.disabled=true);
-      lockBtn.disabled=true;
+    });
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        inputs.forEach(i => i.disabled = true);
+        lockBtn.disabled = true;
+        alert('Quiz locked because you exited fullscreen.');
+      }
     });
   </script>
 </body>
