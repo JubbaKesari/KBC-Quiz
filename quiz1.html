@@ -6,16 +6,16 @@
   <title>Quiz 1 – Coin Roll Puzzle</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
-    body { font-family:'Segoe UI',sans-serif; background:#111; color:#eee; padding:20px; }
+    body { font-family:'Segoe UI',sans-serif; background:#111; color:#eee; padding:20px }
 
-    /* Full-screen overlay */
+    /* Fullscreen kiosk overlay */
     #kioskOverlay {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000; color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999; font-size: 24px; text-align: center;
-      cursor: pointer;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:#000; color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999; font-size:24px; text-align:center;
+      cursor:pointer;
     }
 
     /* Progress Bar */
@@ -68,7 +68,7 @@
     }
 
     .actions {
-      text-align:center; padding:20px; background:#222;
+      text-align:center; padding:20px; background:#222; position:relative;
     }
     button {
       margin:0 8px; padding:10px 20px; font-size:14px;
@@ -78,6 +78,25 @@
     button:hover:not(:disabled) { transform:translateY(-2px) }
     #lockBtn { background:#0ff; color:#111 }
     #lockBtn:disabled { background:#555; cursor:default }
+    #lockBtn:hover:not(:disabled) { background:#0cc }
+
+    /* Inline confirmation */
+    #confirmBox {
+      display:none;
+      margin-top:16px;
+      padding:12px;
+      background:#333;
+      border:2px solid #0ff;
+      border-radius:6px;
+    }
+    #confirmBox p {
+      margin-bottom:12px;
+    }
+    #confirmBox button {
+      margin:0 6px;
+      padding:6px 12px;
+      font-size:14px;
+    }
 
     .feedback {
       margin:12px 0; font-weight:bold; font-size:16px;
@@ -122,6 +141,13 @@
     <div class="actions">
       <button id="lockBtn">Lock Your Response</button>
       <a href="quiz2.html"><button id="nextBtn">Next Quiz →</button></a>
+
+      <!-- Inline confirmation prompt -->
+      <div id="confirmBox">
+        <p>Do you wish to lock your response?</p>
+        <button id="confirmYes">Yes, lock it</button>
+        <button id="confirmNo">No, go back</button>
+      </div>
     </div>
 
     <div id="feedback" class="feedback"></div>
@@ -130,19 +156,24 @@
       <p>Solution Video:</p>
       <video controls>
         <source src="Quiz%201.mp4" type="video/mp4">
-        Your browser doesn’t support HTML5 video.
       </video>
     </div>
   </div>
 
   <script>
-    const overlay   = document.getElementById('kioskOverlay');
+    const overlay     = document.getElementById('kioskOverlay');
     const progressBar = document.getElementById('progressBar');
     const lockBtn     = document.getElementById('lockBtn');
+    const confirmBox  = document.getElementById('confirmBox');
+    const confirmYes  = document.getElementById('confirmYes');
+    const confirmNo   = document.getElementById('confirmNo');
     const feedback    = document.getElementById('feedback');
     const solCont     = document.getElementById('solutionContainer');
     const inputs      = document.querySelectorAll('input[name="answer"]');
-    const labels      = { yes: document.getElementById('labelYes'), no: document.getElementById('labelNo') };
+    const labels      = {
+      yes: document.getElementById('labelYes'),
+      no:  document.getElementById('labelNo')
+    };
 
     // Build progress bar
     for (let i = 1; i <= 15; i++) {
@@ -152,58 +183,80 @@
       d.textContent = i;
       progressBar.appendChild(d);
     }
-    // Restore statuses from sessionStorage
+    // Restore statuses
     document.querySelectorAll('.quiz-item').forEach(item => {
       const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
       if (st) item.classList.add(st);
     });
-    // Mark current quiz
+    // Mark current
     document.querySelector('.quiz-item[data-quiz="1"]').classList.add('current');
 
-    // Handle kiosk overlay click → fullscreen
+    // Fullscreen overlay
     overlay.addEventListener('click', async () => {
       try { await document.documentElement.requestFullscreen(); }
-      catch (e) { console.warn('Fullscreen request failed:', e); }
+      catch(e){ console.warn(e) }
       overlay.style.display = 'none';
     });
 
-    // If already answered this session, lock immediately
+    // If answered already
     const prev = sessionStorage.getItem('quiz1');
     if (prev) {
-      document.querySelector('.quiz-item[data-quiz="1"]').classList.replace('current', prev);
+      const me = document.querySelector('.quiz-item[data-quiz="1"]');
+      me.classList.replace('current', prev);
       inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
       lockBtn.disabled = true;
       feedback.textContent = prev==='correct'
         ? '✅ You already answered correctly.'
         : '❌ You have answered wrongly.';
-      feedback.classList.add(prev==='correct' ? 'correct' : 'wrong');
+      feedback.classList.add(prev==='correct'?'correct':'wrong');
       if (prev==='wrong') solCont.style.display = 'block';
     }
 
-    // Lock button handler
+    // On lock click → show inline confirm
     lockBtn.addEventListener('click', () => {
+      confirmBox.style.display = 'block';
+      lockBtn.disabled = true; // prevent double-click
+    });
+    // Cancel
+    confirmNo.addEventListener('click', () => {
+      confirmBox.style.display = 'none';
+      lockBtn.disabled = false;
+    });
+    // Confirm
+    confirmYes.addEventListener('click', async () => {
+      // re-enter fullscreen if lost
+      if (!document.fullscreenElement) {
+        try{ await document.documentElement.requestFullscreen(); }
+        catch(e){ console.warn(e) }
+      }
+      confirmBox.style.display = 'none';
+
       const choice = document.querySelector('input[name="answer"]:checked');
-      if (!choice) { alert('Please select Yes or No.'); return; }
-      if (!confirm('Do you wish to lock your response?')) return;
+      if (!choice) {
+        alert('Please select Yes or No.');
+        lockBtn.disabled = false;
+        return;
+      }
 
       const correct = choice.value === 'no';
-      sessionStorage.setItem('quiz1', correct ? 'correct' : 'wrong');
+      sessionStorage.setItem('quiz1', correct?'correct':'wrong');
 
+      // update progress circle
       const me = document.querySelector('.quiz-item[data-quiz="1"]');
       me.classList.remove('current');
-      me.classList.add(correct ? 'correct' : 'wrong');
+      me.classList.add(correct?'correct':'wrong');
 
+      // feedback
       feedback.textContent = correct
         ? '✅ Correct! The coin remains upright.'
         : '❌ Wrong. Watch the solution below.';
-      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+      feedback.className = 'feedback ' + (correct?'correct':'wrong');
       if (!correct) solCont.style.display = 'block';
 
-      inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
-      lockBtn.disabled = true;
+      inputs.forEach(i => { i.disabled=true; labels[i.value].classList.add('disabled'); });
     });
 
-    // Lock on tab switch or exit fullscreen
+    // Lock on tab switch / exit fullscreen
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         inputs.forEach(i => i.disabled = true);
