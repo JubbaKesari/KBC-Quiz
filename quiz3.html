@@ -185,6 +185,7 @@
     const overlay     = document.getElementById('kioskOverlay');
     const progressBar = document.getElementById('progressBar');
     const lockBtn     = document.getElementById('lockBtn');
+    const nextBtn     = document.getElementById('nextBtn');
     const confirmBox  = document.getElementById('confirmBox');
     const confirmYes  = document.getElementById('confirmYes');
     const confirmNo   = document.getElementById('confirmNo');
@@ -192,6 +193,10 @@
     const solCont     = document.getElementById('solutionContainer');
     const options     = document.getElementById('optionsContainer');
     const items       = options.querySelectorAll('.option-item');
+
+    // Navigation guard
+    let allowNav = false;
+    nextBtn.addEventListener('click', () => { allowNav = true; });
 
     // 1) Build progress bar
     for (let i = 1; i <= 15; i++) {
@@ -244,12 +249,10 @@
       confirmBox.style.display = 'block';
       lockBtn.disabled = true;
     });
-
     confirmNo.addEventListener('click', () => {
       confirmBox.style.display = 'none';
       lockBtn.disabled = false;
     });
-
     confirmYes.addEventListener('click', async () => {
       if (!document.fullscreenElement) {
         try { await document.documentElement.requestFullscreen(); }
@@ -280,8 +283,9 @@
       items.forEach(i => i.classList.add('disabled'));
     });
 
-    // 8) Disable on tab switch / exit fullscreen
+    // 8) Pause/Lock on tab switch or exit fullscreen, unless navigating
     document.addEventListener('visibilitychange', () => {
+      if (allowNav) return;
       if (document.hidden) {
         items.forEach(i => i.classList.add('disabled'));
         lockBtn.disabled = true;
@@ -289,6 +293,7 @@
       }
     });
     document.addEventListener('fullscreenchange', () => {
+      if (allowNav) return;
       if (!document.fullscreenElement) {
         items.forEach(i => i.classList.add('disabled'));
         lockBtn.disabled = true;
