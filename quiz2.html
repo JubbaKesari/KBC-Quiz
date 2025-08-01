@@ -111,16 +111,39 @@
 </head>
 <body>
 
-  <!-- Progress Bar (1–15) -->
-  <div class="progress-bar">
-    <script>
-      for (let i = 1; i <= 15; i++) {
-        document.write(
-          `<div class="quiz-item${i===2?' current':''}" data-quiz="${i}">${i}</div>`
-        );
-      }
-    </script>
-  </div>
+<!-- Progress bar placeholder -->
+<div class="progress-bar" id="progressBar"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const progressBar = document.getElementById('progressBar');
+    for (let i = 1; i <= 15; i++) {
+      const div = document.createElement('div');
+      div.classList.add('quiz-item');
+      div.textContent = i;
+      div.dataset.quiz = i;
+      progressBar.appendChild(div);
+    }
+
+    document.querySelectorAll('.quiz-item').forEach(item => {
+      const q = item.dataset.quiz;
+      const status = localStorage.getItem('quiz' + q);
+      if (status) item.classList.add(status);
+    });
+
+    document.querySelector('.quiz-item[data-quiz="2"]').classList.add('current');
+  });
+
+  lockBtn.addEventListener('click', () => {
+    // ... existing lock logic ...
+    const isCorrect = (choice.value === 'C');
+    localStorage.setItem('quiz2', isCorrect ? 'correct' : 'wrong');
+    const me = document.querySelector('.quiz-item[data-quiz="2"]');
+    me.classList.remove('current');
+    me.classList.add(isCorrect ? 'correct' : 'wrong');
+  });
+</script>
+
 
   <div class="container">
     <div class="header">
