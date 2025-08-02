@@ -118,13 +118,6 @@
     }
     .feedback.correct { color:#0f0 }
     .feedback.wrong   { color:#f33 }
-
-    #solutionContainer {
-      display:none; padding:20px; background:#1b1b1b; text-align:center;
-    }
-    #solutionContainer video {
-      width:100%; max-height:300px; border-radius:6px; background:#000;
-    }
   </style>
 </head>
 <body>
@@ -164,7 +157,7 @@
       <button id="lockBtn">Lock Your Response</button>
       <a href="quiz3.html"><button id="nextBtn">Next Quiz →</button></a>
 
-      <!-- Inline confirmation prompt -->
+      <!-- Inline confirmation -->
       <div id="confirmBox">
         <p>Do you wish to lock your response?</p>
         <button id="confirmYes">Yes, lock it</button>
@@ -173,13 +166,6 @@
     </div>
 
     <div id="feedback" class="feedback"></div>
-
-    <div id="solutionContainer">
-      <p>Solution Video:</p>
-      <video controls>
-        <source src="Quiz 2.mp4" type="video/mp4">
-      </video>
-    </div>
   </div>
 
   <script>
@@ -191,7 +177,6 @@
     const confirmYes  = document.getElementById('confirmYes');
     const confirmNo   = document.getElementById('confirmNo');
     const feedback    = document.getElementById('feedback');
-    const solCont     = document.getElementById('solutionContainer');
     const inputs      = document.querySelectorAll('input[name="answer"]');
     const labels      = {
       A: document.getElementById('labelA'),
@@ -204,7 +189,7 @@
     let allowNav = false;
     nextBtn.addEventListener('click', () => { allowNav = true; });
 
-    // Build progress bar
+    // 1) Build progress bar
     for (let i = 1; i <= 15; i++) {
       const d = document.createElement('div');
       d.className = 'quiz-item';
@@ -212,22 +197,22 @@
       d.textContent = i;
       progressBar.appendChild(d);
     }
-    // Restore statuses
+    // 2) Restore statuses
     document.querySelectorAll('.quiz-item').forEach(item => {
       const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
       if (st) item.classList.add(st);
     });
-    // Mark current
+    // 3) Mark current
     document.querySelector('.quiz-item[data-quiz="2"]').classList.add('current');
 
-    // Kiosk overlay → fullscreen
+    // 4) Fullscreen overlay
     overlay.addEventListener('click', async () => {
       try { await document.documentElement.requestFullscreen(); }
       catch(e){ console.warn(e) }
       overlay.style.display = 'none';
     });
 
-    // If already answered
+    // 5) If answered already
     const prev = sessionStorage.getItem('quiz2');
     if (prev) {
       const me = document.querySelector('.quiz-item[data-quiz="2"]');
@@ -235,13 +220,12 @@
       inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
       lockBtn.disabled = true;
       feedback.textContent = prev==='correct'
-        ? '✅ You already answered correctly.'
-        : '❌ You have answered wrongly.';
+        ? '✅ You already answered correctly.' 
+        : '❌ You have answered wrongly. Correct answer: C';
       feedback.classList.add(prev==='correct'?'correct':'wrong');
-      if (prev==='wrong') solCont.style.display = 'block';
     }
 
-    // On lock click → show inline confirm
+    // 6) Lock click → show inline confirm
     lockBtn.addEventListener('click', () => {
       confirmBox.style.display = 'block';
       lockBtn.disabled = true;
@@ -264,22 +248,21 @@
         return;
       }
       const correct = choice.value === 'C';
-      sessionStorage.setItem('quiz2', correct ? 'correct' : 'wrong');
+      sessionStorage.setItem('quiz2', correct?'correct':'wrong');
 
       const me = document.querySelector('.quiz-item[data-quiz="2"]');
       me.classList.remove('current');
-      me.classList.add(correct ? 'correct' : 'wrong');
+      me.classList.add(correct?'correct':'wrong');
 
       feedback.textContent = correct
         ? '✅ Correct! Option C is the right net.'
-        : '❌ Wrong. Watch the solution below.';
-      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
-      if (!correct) solCont.style.display = 'block';
+        : '❌ Wrong. Correct answer: C';
+      feedback.className = 'feedback ' + (correct?'correct':'wrong');
 
       inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
     });
 
-    // Pause/Lock on tab switch or exit fullscreen, unless navigating
+    // 7) Pause/Lock on tab switch or exit fullscreen, unless navigating
     document.addEventListener('visibilitychange', () => {
       if (allowNav) return;
       if (document.hidden) {
