@@ -106,13 +106,6 @@
     }
     .feedback.correct { color:#0f0 }
     .feedback.wrong   { color:#f33 }
-
-    #solutionContainer {
-      display:none; padding:20px; background:#1b1b1b; text-align:center;
-    }
-    #solutionContainer video {
-      width:100%; max-height:300px; border-radius:6px; background:#000;
-    }
   </style>
 </head>
 <body>
@@ -160,13 +153,6 @@
     </div>
 
     <div id="feedback" class="feedback"></div>
-
-    <div id="solutionContainer">
-      <p>Solution Video:</p>
-      <video controls>
-        <source src="Quiz%204.mp4" type="video/mp4">
-      </video>
-    </div>
   </div>
 
   <script>
@@ -178,7 +164,6 @@
     const confirmYes  = document.getElementById('confirmYes');
     const confirmNo   = document.getElementById('confirmNo');
     const feedback    = document.getElementById('feedback');
-    const solCont     = document.getElementById('solutionContainer');
     const inputs      = document.querySelectorAll('input[name="answer"]');
     const labels      = {
       five:  document.getElementById('labelFive'),
@@ -223,9 +208,8 @@
       lockBtn.disabled = true;
       feedback.textContent = prev === 'correct'
         ? '✅ You already answered correctly.'
-        : '❌ You have answered wrongly.';
+        : '❌ You have answered wrongly. Correct answer: Seven';
       feedback.classList.add(prev === 'correct' ? 'correct' : 'wrong');
-      if (prev === 'wrong') solCont.style.display = 'block';
     }
 
     // 6) Lock click → show inline confirm
@@ -250,7 +234,6 @@
         lockBtn.disabled = false;
         return;
       }
-
       const correct = choice.value === 'seven';
       sessionStorage.setItem('quiz4', correct ? 'correct' : 'wrong');
 
@@ -260,9 +243,8 @@
 
       feedback.textContent = correct
         ? '✅ Correct! The letter “e” appears seven times.'
-        : '❌ Wrong. Watch the solution below.';
+        : '❌ Wrong. Correct answer: Seven';
       feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
-      if (!correct) solCont.style.display = 'block';
 
       inputs.forEach(i => { i.disabled = true; labels[i.value].classList.add('disabled'); });
     });
@@ -287,4 +269,3 @@
   </script>
 </body>
 </html>
-
