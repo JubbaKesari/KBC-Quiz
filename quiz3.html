@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Quiz 3 – Family Relation Puzzle</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
     body { font-family:'Segoe UI',sans-serif; background:#111; color:#eee; padding:20px }
 
-    /* Fullscreen kiosk overlay */
     #kioskOverlay {
       position:fixed; top:0; left:0;
       width:100%; height:100%;
@@ -18,20 +17,17 @@
       cursor:pointer;
     }
 
-    /* Progress Bar */
     .progress-bar {
       display:flex; justify-content:center; gap:8px; margin-bottom:24px;
     }
     .quiz-item {
       width:28px; height:28px; line-height:28px; text-align:center;
       border-radius:50%; background:#555; color:#222; font-weight:bold;
-      transition:box-shadow .3s, background .3s;
     }
-    .quiz-item.current { box-shadow:0 0 0 3px #0ff }
-    .quiz-item.correct { background:#0f0; box-shadow:0 0 6px #0f0; color:#111 }
-    .quiz-item.wrong   { background:#f33; box-shadow:0 0 6px #f33; color:#111 }
+    .quiz-item.current  { box-shadow:0 0 0 3px #0ff }
+    .quiz-item.correct  { background:#0f0; box-shadow:0 0 6px #0f0; color:#111 }
+    .quiz-item.wrong    { background:#f33; box-shadow:0 0 6px #f33; color:#111 }
 
-    /* Container */
     .container {
       max-width:700px; margin:auto;
       background:#1e1e1e; border-left:4px solid #0ff;
@@ -47,7 +43,6 @@
       font-size:16px; line-height:1.5;
     }
 
-    /* Options as labels */
     .options {
       display:flex; justify-content:space-around;
       flex-wrap:wrap; gap:16px; margin:20px 0;
@@ -56,11 +51,8 @@
       position:relative;
       background:#333; border-radius:6px;
       cursor:pointer; padding:12px 20px;
-      transition:background .2s,transform .2s;
       text-align:center; min-width:120px; color:#eee;
-    }
-    .option-item.disabled {
-      opacity:0.5; cursor:default;
+      transition:background .2s, transform .2s;
     }
     .option-item:hover:not(.disabled) {
       background:#0ff; transform:translateY(-4px); color:#111;
@@ -69,25 +61,26 @@
       background:#0ff; color:#111;
       box-shadow:0 0 8px #0ff;
     }
+    .option-item.disabled {
+      opacity:0.5; cursor:default;
+    }
     .option-item input {
-      position:absolute; opacity:0; cursor:pointer;
-      width:100%; height:100%; top:0; left:0;
+      position:absolute; opacity:0; width:100%; height:100%; top:0; left:0;
     }
 
     .actions {
-      text-align:center; padding:20px; background:#222; position:relative;
+      text-align:center; padding:20px; background:#222;
     }
     button {
       margin:0 8px; padding:10px 20px; font-size:14px;
       border:none; border-radius:6px; cursor:pointer;
-      transition:background .2s,transform .2s;
+      transition:background .2s, transform .2s;
     }
     button:hover:not(:disabled) { transform:translateY(-2px) }
     #lockBtn { background:#0ff; color:#111 }
     #lockBtn:disabled { background:#555; cursor:default }
     #lockBtn:hover:not(:disabled) { background:#0cc }
 
-    /* Inline confirmation */
     #confirmBox {
       display:none; margin-top:16px; padding:12px;
       background:#333; border:2px solid #0ff; border-radius:6px;
@@ -109,167 +102,180 @@
 </head>
 <body>
 
-  <!-- Fullscreen kiosk overlay -->
-  <div id="kioskOverlay">Click anywhere to start the quiz in fullscreen</div>
+<div id="kioskOverlay">Click anywhere to start the quiz in fullscreen</div>
 
-  <!-- Progress Bar -->
-  <div class="progress-bar" id="progressBar"></div>
+<div class="progress-bar" id="progressBar"></div>
 
-  <div class="container">
-    <div class="header">
-      <h1>Quiz 3</h1>
-      <div class="level">Level – Easy</div>
-    </div>
-
-    <div class="question">
-      <p>
-        Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br><br>
-        How is that lady related to Rahul?
-      </p>
-    </div>
-
-    <div class="options" id="optionsContainer">
-      <label class="option-item">
-        <input type="radio" name="answer" value="Mother">
-        <span>Mother</span>
-      </label>
-      <label class="option-item">
-        <input type="radio" name="answer" value="Sister">
-        <span>Sister</span>
-      </label>
-      <label class="option-item">
-        <input type="radio" name="answer" value="Wife">
-        <span>Wife</span>
-      </label>
-      <label class="option-item">
-        <input type="radio" name="answer" value="Daughter">
-        <span>Daughter</span>
-      </label>
-    </div>
-
-    <div class="actions">
-      <button id="lockBtn">Lock Your Response</button>
-      <a href="quiz4.html"><button id="nextBtn">Next Quiz →</button></a>
-
-      <!-- Inline confirmation -->
-      <div id="confirmBox">
-        <p>Do you wish to lock your response?</p>
-        <button id="confirmYes">Yes, lock it</button>
-        <button id="confirmNo">No, go back</button>
-      </div>
-    </div>
-
-    <div id="feedback" class="feedback"></div>
+<div class="container">
+  <div class="header">
+    <h1>Quiz 3</h1>
+    <div class="level">Level – Easy</div>
   </div>
 
-  <script>
-    const overlay     = document.getElementById('kioskOverlay');
-    const progressBar = document.getElementById('progressBar');
-    const lockBtn     = document.getElementById('lockBtn');
-    const nextBtn     = document.getElementById('nextBtn');
-    const confirmBox  = document.getElementById('confirmBox');
-    const confirmYes  = document.getElementById('confirmYes');
-    const confirmNo   = document.getElementById('confirmNo');
-    const feedback    = document.getElementById('feedback');
-    const inputs      = document.querySelectorAll('input[name="answer"]');
-    const labels      = document.querySelectorAll('.option-item');
+  <div class="question">
+    <p>
+      Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br><br>
+      How is that lady related to Rahul?
+    </p>
+  </div>
 
-    // Navigation guard
-    let allowNav = false;
-    nextBtn.addEventListener('click', () => { allowNav = true; });
+  <div class="options" id="optionsContainer">
+    <label class="option-item">
+      <input type="radio" name="answer" value="Mother">
+      <span>Mother</span>
+    </label>
+    <label class="option-item">
+      <input type="radio" name="answer" value="Sister">
+      <span>Sister</span>
+    </label>
+    <label class="option-item">
+      <input type="radio" name="answer" value="Wife">
+      <span>Wife</span>
+    </label>
+    <label class="option-item">
+      <input type="radio" name="answer" value="Daughter">
+      <span>Daughter</span>
+    </label>
+  </div>
 
-    // 1) Build progress bar
-    for (let i = 1; i <= 15; i++) {
-      const d = document.createElement('div');
-      d.className = 'quiz-item';
-      d.dataset.quiz = i;
-      d.textContent = i;
-      progressBar.appendChild(d);
+  <div class="actions">
+    <button id="lockBtn">Lock Your Response</button>
+    <a href="quiz4.html"><button id="nextBtn" disabled>Next Quiz →</button></a>
+
+    <div id="confirmBox">
+      <p>Do you wish to lock your response?</p>
+      <button id="confirmYes">Yes, lock it</button>
+      <button id="confirmNo">No, go back</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('kioskOverlay');
+  const progressBar = document.getElementById('progressBar');
+  const lockBtn = document.getElementById('lockBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const confirmBox = document.getElementById('confirmBox');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo = document.getElementById('confirmNo');
+  const feedback = document.getElementById('feedback');
+  const inputs = document.querySelectorAll('input[name="answer"]');
+  const labels = document.querySelectorAll('.option-item');
+
+  let allowNav = false;
+  nextBtn.addEventListener('click', () => { allowNav = true; });
+
+  for (let i = 1; i <= 15; i++) {
+    const d = document.createElement('div');
+    d.className = 'quiz-item';
+    d.dataset.quiz = i;
+    d.textContent = i;
+    progressBar.appendChild(d);
+  }
+
+  document.querySelectorAll('.quiz-item').forEach(item => {
+    const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
+    if (st) item.classList.add(st);
+  });
+  document.querySelector('.quiz-item[data-quiz="3"]').classList.add('current');
+
+  overlay.addEventListener('click', async () => {
+    try { await document.documentElement.requestFullscreen(); }
+    catch(e){ console.warn(e); }
+    overlay.style.display = 'none';
+  });
+
+  // Realtime selection highlight
+  inputs.forEach(input => {
+    input.addEventListener('change', () => {
+      labels.forEach(l => l.classList.remove('checked'));
+      if (input.checked) {
+        input.parentElement.classList.add('checked');
+      }
+    });
+  });
+
+  // Show confirm only if something is selected
+  lockBtn.addEventListener('click', () => {
+    const choice = document.querySelector('input[name="answer"]:checked');
+    if (!choice) {
+      alert("Please select an option before locking.");
+      return;
     }
-    // 2) Restore statuses
-    document.querySelectorAll('.quiz-item').forEach(item => {
-      const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
-      if (st) item.classList.add(st);
-    });
-    // 3) Mark current
-    document.querySelector('.quiz-item[data-quiz="3"]').classList.add('current');
+    confirmBox.style.display = 'block';
+    lockBtn.disabled = true;
+  });
 
-    // 4) Fullscreen overlay
-    overlay.addEventListener('click', async () => {
-      try { await document.documentElement.requestFullscreen(); }
-      catch(e){ console.warn(e) }
-      overlay.style.display = 'none';
-    });
+  confirmNo.addEventListener('click', () => {
+    confirmBox.style.display = 'none';
+    lockBtn.disabled = false;
+  });
 
-    // 5) If answered already
-    const prev = sessionStorage.getItem('quiz3');
-    if (prev) {
-      const me = document.querySelector('.quiz-item[data-quiz="3"]');
-      me.classList.replace('current', prev);
-      inputs.forEach(i => i.disabled = true);
-      document.querySelectorAll('label.option-item').forEach(l => l.classList.add('disabled'));
-      lockBtn.disabled = true;
-      feedback.textContent = prev==='correct'
-        ? '✅ You already answered correctly.'
-        : '❌ You have answered wrongly. Correct answer: Wife';
-      feedback.classList.add(prev==='correct'?'correct':'wrong');
-    }
-
-    // 6) Lock click → show inline confirm
-    lockBtn.addEventListener('click', () => {
-      confirmBox.style.display = 'block';
-      lockBtn.disabled = true;
-    });
-    confirmNo.addEventListener('click', () => {
-      confirmBox.style.display = 'none';
+  confirmYes.addEventListener('click', async () => {
+    const choice = document.querySelector('input[name="answer"]:checked');
+    if (!choice) {
+      alert('Please select an option first.');
       lockBtn.disabled = false;
-    });
-    confirmYes.addEventListener('click', async () => {
-      if (!document.fullscreenElement) {
-        try { await document.documentElement.requestFullscreen(); }
-        catch(e) { console.warn(e) }
-      }
       confirmBox.style.display = 'none';
+      return;
+    }
 
-      const choice = document.querySelector('input[name="answer"]:checked');
-      if (!choice) {
-        alert('Please select an option.');
-        lockBtn.disabled = false;
-        return;
-      }
-      const correct = choice.value === 'Wife';
-      sessionStorage.setItem('quiz3', correct?'correct':'wrong');
+    if (!document.fullscreenElement) {
+      try { await document.documentElement.requestFullscreen(); } catch(e) {}
+    }
 
-      const me = document.querySelector('.quiz-item[data-quiz="3"]');
-      me.classList.remove('current');
-      me.classList.add(correct?'correct':'wrong');
+    const isCorrect = choice.value === "Wife";
+    sessionStorage.setItem('quiz3', isCorrect ? 'correct' : 'wrong');
 
-      feedback.textContent = correct
-        ? '✅ Correct! She is Rahul’s wife.'
-        : '❌ Wrong. Correct answer: Wife';
-      feedback.className = 'feedback ' + (correct?'correct':'wrong');
+    document.querySelector('.quiz-item[data-quiz="3"]').classList.replace('current', isCorrect ? 'correct' : 'wrong');
+    feedback.textContent = isCorrect ? '✅ Correct! She is Rahul’s wife.' : '❌ Wrong. Correct answer: Wife';
+    feedback.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
 
+    inputs.forEach(i => i.disabled = true);
+    labels.forEach(l => l.classList.add('disabled'));
+    nextBtn.disabled = false;
+    confirmBox.style.display = 'none';
+  });
+
+  // Already answered logic
+  const prev = sessionStorage.getItem('quiz3');
+  if (prev) {
+    const me = document.querySelector('.quiz-item[data-quiz="3"]');
+    me.classList.replace('current', prev);
+    inputs.forEach(i => i.disabled = true);
+    labels.forEach(label => {
+      const input = label.querySelector('input');
+      if (input.value === "Wife" && prev === "correct") label.classList.add('checked');
+      if (input.checked) label.classList.add('checked');
+      label.classList.add('disabled');
+    });
+    lockBtn.disabled = true;
+    nextBtn.disabled = false;
+    feedback.textContent = prev === 'correct'
+      ? '✅ You already answered correctly.'
+      : '❌ You have answered wrongly. Correct answer: Wife';
+    feedback.classList.add(prev === 'correct' ? 'correct' : 'wrong');
+  }
+
+  // Security checks
+  document.addEventListener('visibilitychange', () => {
+    if (allowNav) return;
+    if (document.hidden) {
       inputs.forEach(i => i.disabled = true);
-      document.querySelectorAll('.option-item').forEach(l => l.classList.add('disabled'));
-    });
+      lockBtn.disabled = true;
+      alert('Quiz paused because you left the page.');
+    }
+  });
 
-    // 7) Pause/Lock on tab switch or exit fullscreen, unless navigating
-    document.addEventListener('visibilitychange', () => {
-      if (allowNav) return;
-      if (document.hidden) {
-        inputs.forEach(i => i.disabled = true);
-        lockBtn.disabled = true;
-        alert('Quiz paused because you left the page.');
-      }
-    });
-    document.addEventListener('fullscreenchange', () => {
-      if (allowNav) return;
-      if (!document.fullscreenElement) {
-        inputs.forEach(i => i.disabled = true);
-        lockBtn.disabled = true;
-        alert('Quiz locked because you exited fullscreen.');
-      }
-    });
-  </script>
+  document.addEventListener('fullscreenchange', () => {
+    if (allowNav) return;
+    if (!document.fullscreenElement) {
+      inputs.forEach(i => i.disabled = true);
+      lockBtn.disabled = true;
+      alert('Quiz locked because you exited fullscreen.');
+    }
+  });
+</script>
 </body>
 </html>
