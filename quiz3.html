@@ -87,22 +87,15 @@
     #lockBtn:disabled { background:#555; cursor:default }
     #lockBtn:hover:not(:disabled) { background:#0cc }
 
-    /* Inline confirmation prompt */
+    /* Inline confirmation */
     #confirmBox {
-      display:none;
-      margin-top:16px;
-      padding:12px;
-      background:#333;
-      border:2px solid #0ff;
-      border-radius:6px;
+      display:none; margin-top:16px; padding:12px;
+      background:#333; border:2px solid #0ff; border-radius:6px;
     }
     #confirmBox p { margin-bottom:12px; }
     #confirmBox button {
-      margin:0 6px;
-      padding:6px 12px;
-      font-size:14px;
-      border:none; border-radius:4px;
-      cursor:pointer;
+      margin:0 6px; padding:6px 12px; font-size:14px;
+      border:none; border-radius:4px; cursor:pointer;
     }
     #confirmYes { background:#0f0; }
     #confirmNo  { background:#f33; }
@@ -112,18 +105,11 @@
     }
     .feedback.correct { color:#0f0 }
     .feedback.wrong   { color:#f33 }
-
-    #solutionContainer {
-      display:none; padding:20px; background:#1b1b1b; text-align:center;
-    }
-    #solutionContainer video {
-      width:100%; max-height:300px; border-radius:6px; background:#000;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Fullscreen Kiosk Overlay -->
+  <!-- Fullscreen kiosk overlay -->
   <div id="kioskOverlay">Click anywhere to start the quiz in fullscreen</div>
 
   <!-- Progress Bar -->
@@ -136,34 +122,36 @@
     </div>
 
     <div class="question">
-      Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br><br>
-      How is that lady related to Rahul?
+      <p>
+        Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br><br>
+        How is that lady related to Rahul?
+      </p>
     </div>
 
     <div class="options" id="optionsContainer">
-      <div class="option-item" id="optA">
+      <label class="option-item">
         <input type="radio" name="answer" value="Mother">
         <span>Mother</span>
-      </div>
-      <div class="option-item" id="optB">
+      </label>
+      <label class="option-item">
         <input type="radio" name="answer" value="Sister">
         <span>Sister</span>
-      </div>
-      <div class="option-item" id="optC">
+      </label>
+      <label class="option-item">
         <input type="radio" name="answer" value="Wife">
         <span>Wife</span>
-      </div>
-      <div class="option-item" id="optD">
+      </label>
+      <label class="option-item">
         <input type="radio" name="answer" value="Daughter">
         <span>Daughter</span>
-      </div>
+      </label>
     </div>
 
     <div class="actions">
       <button id="lockBtn">Lock Your Response</button>
       <a href="quiz4.html"><button id="nextBtn">Next Quiz →</button></a>
 
-      <!-- Inline confirmation prompt -->
+      <!-- Inline confirmation -->
       <div id="confirmBox">
         <p>Do you wish to lock your response?</p>
         <button id="confirmYes">Yes, lock it</button>
@@ -172,13 +160,6 @@
     </div>
 
     <div id="feedback" class="feedback"></div>
-
-    <div id="solutionContainer">
-      <p>Solution Video:</p>
-      <video controls>
-        <source src="Quiz 3.mp4" type="video/mp4">
-      </video>
-    </div>
   </div>
 
   <script>
@@ -190,9 +171,8 @@
     const confirmYes  = document.getElementById('confirmYes');
     const confirmNo   = document.getElementById('confirmNo');
     const feedback    = document.getElementById('feedback');
-    const solCont     = document.getElementById('solutionContainer');
-    const options     = document.getElementById('optionsContainer');
-    const items       = options.querySelectorAll('.option-item');
+    const inputs      = document.querySelectorAll('input[name="answer"]');
+    const labels      = document.querySelectorAll('.option-item');
 
     // Navigation guard
     let allowNav = false;
@@ -207,44 +187,35 @@
       progressBar.appendChild(d);
     }
     // 2) Restore statuses
-    document.querySelectorAll('.quiz-item').forEach(it => {
-      const st = sessionStorage.getItem('quiz' + it.dataset.quiz);
-      if (st) it.classList.add(st);
+    document.querySelectorAll('.quiz-item').forEach(item => {
+      const st = sessionStorage.getItem('quiz' + item.dataset.quiz);
+      if (st) item.classList.add(st);
     });
     // 3) Mark current
     document.querySelector('.quiz-item[data-quiz="3"]').classList.add('current');
 
-    // 4) Kiosk overlay → fullscreen
+    // 4) Fullscreen overlay
     overlay.addEventListener('click', async () => {
       try { await document.documentElement.requestFullscreen(); }
-      catch (e) { console.warn(e); }
+      catch(e){ console.warn(e) }
       overlay.style.display = 'none';
     });
 
-    // 5) Option click styling
-    options.addEventListener('click', e => {
-      const opt = e.target.closest('.option-item');
-      if (!opt || opt.classList.contains('disabled')) return;
-      items.forEach(i => i.classList.remove('checked'));
-      opt.classList.add('checked');
-      opt.querySelector('input').checked = true;
-    });
-
-    // 6) If already answered, lock on load
+    // 5) If answered already
     const prev = sessionStorage.getItem('quiz3');
     if (prev) {
       const me = document.querySelector('.quiz-item[data-quiz="3"]');
       me.classList.replace('current', prev);
-      items.forEach(i => i.classList.add('disabled'));
+      inputs.forEach(i => i.disabled = true);
+      document.querySelectorAll('label.option-item').forEach(l => l.classList.add('disabled'));
       lockBtn.disabled = true;
-      feedback.textContent = prev === 'correct'
+      feedback.textContent = prev==='correct'
         ? '✅ You already answered correctly.'
-        : '❌ You have answered wrongly.';
-      feedback.classList.add(prev === 'correct' ? 'correct' : 'wrong');
-      if (prev === 'wrong') solCont.style.display = 'block';
+        : '❌ You have answered wrongly. Correct answer: Wife';
+      feedback.classList.add(prev==='correct'?'correct':'wrong');
     }
 
-    // 7) Show inline confirm
+    // 6) Lock click → show inline confirm
     lockBtn.addEventListener('click', () => {
       confirmBox.style.display = 'block';
       lockBtn.disabled = true;
@@ -256,38 +227,37 @@
     confirmYes.addEventListener('click', async () => {
       if (!document.fullscreenElement) {
         try { await document.documentElement.requestFullscreen(); }
-        catch (e) { console.warn(e); }
+        catch(e) { console.warn(e) }
       }
       confirmBox.style.display = 'none';
 
-      const choice = options.querySelector('input[name="answer"]:checked');
+      const choice = document.querySelector('input[name="answer"]:checked');
       if (!choice) {
         alert('Please select an option.');
         lockBtn.disabled = false;
         return;
       }
-
       const correct = choice.value === 'Wife';
-      sessionStorage.setItem('quiz3', correct ? 'correct' : 'wrong');
+      sessionStorage.setItem('quiz3', correct?'correct':'wrong');
 
       const me = document.querySelector('.quiz-item[data-quiz="3"]');
       me.classList.remove('current');
-      me.classList.add(correct ? 'correct' : 'wrong');
+      me.classList.add(correct?'correct':'wrong');
 
       feedback.textContent = correct
         ? '✅ Correct! She is Rahul’s wife.'
-        : '❌ Wrong. Watch the solution below.';
-      feedback.className = 'feedback ' + (correct ? 'correct' : 'wrong');
-      if (!correct) solCont.style.display = 'block';
+        : '❌ Wrong. Correct answer: Wife';
+      feedback.className = 'feedback ' + (correct?'correct':'wrong');
 
-      items.forEach(i => i.classList.add('disabled'));
+      inputs.forEach(i => i.disabled = true);
+      document.querySelectorAll('.option-item').forEach(l => l.classList.add('disabled'));
     });
 
-    // 8) Pause/Lock on tab switch or exit fullscreen, unless navigating
+    // 7) Pause/Lock on tab switch or exit fullscreen, unless navigating
     document.addEventListener('visibilitychange', () => {
       if (allowNav) return;
       if (document.hidden) {
-        items.forEach(i => i.classList.add('disabled'));
+        inputs.forEach(i => i.disabled = true);
         lockBtn.disabled = true;
         alert('Quiz paused because you left the page.');
       }
@@ -295,7 +265,7 @@
     document.addEventListener('fullscreenchange', () => {
       if (allowNav) return;
       if (!document.fullscreenElement) {
-        items.forEach(i => i.classList.add('disabled'));
+        inputs.forEach(i => i.disabled = true);
         lockBtn.disabled = true;
         alert('Quiz locked because you exited fullscreen.');
       }
