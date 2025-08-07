@@ -1,165 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Quiz 3</title>
+  <title>Quiz 3 – Family Relation Puzzle</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
     body {
-      background:#111; color:#eee; font-family:Arial,sans-serif;
-      display:flex; align-items:center; justify-content:center;
-      height:100vh; overflow:hidden;
+      background: #111;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
     }
-    #start-screen, #quiz {
-      width:100%; max-width:700px;
-      display:flex; flex-direction:column; align-items:center;
+    /* Progress circles */
+    .progress-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
     }
-    #quiz { display:none; }
+    .quiz-item {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #555;
+      font-size: 12px;
+      line-height: 24px;
+      text-align: center;
+      color: #222;
+      transition: background .3s, box-shadow .3s;
+    }
+    .quiz-item.current { box-shadow: 0 0 0 3px #0ff; }
+    .quiz-item.correct { background: #0f0; box-shadow: 0 0 6px #0f0; color: #111; }
+    .quiz-item.wrong   { background: #f33; box-shadow: 0 0 6px #f33; color: #111; }
 
-    .header {
-      background:#222; width:100%; padding:20px;
-      display:flex; justify-content:space-between; align-items:center;
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #1e1e1e;
+      border-left: 4px solid #0ff;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      overflow: hidden;
     }
-    .title { color:#0ff; font-size:24px; }
-    .level { color:lightgreen; }
-    .timer { color:yellow; font-family:monospace; }
+    .header {
+      background: #222;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 {
+      color: #0ff;
+      font-size: 28px;
+    }
+    .header .level {
+      color: #0f0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    /* Timer in header */
+    .timer {
+      font-family: monospace;
+      color: #ff0;
+      font-size: 16px;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      50% { transform: scale(1.1); }
+    }
 
     .question {
-      background:#1b1b1b; width:100%; padding:20px; text-align:center;
+      background: #1b1b1b;
+      padding: 20px;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1.5;
     }
 
     .options {
-      display:flex; justify-content:space-around;
-      width:100%; padding:20px 0;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px;
+      background: #1b1b1b;
     }
-    .options button {
-      background:#333; color:#eee; border:none;
-      padding:10px 20px; font-size:16px;
-      cursor:pointer; transition:0.2s;
+    .options input { display: none; }
+    .options label {
+      display: block;
+      background: #333;
+      color: #eee;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+      min-width: 120px;
+      text-align: center;
     }
-    .options button.selected {
-      background:deepskyblue; box-shadow:0 0 8px deepskyblue;
+    .options label:hover {
+      background: #0ff;
+      color: #111;
+    }
+    .options input:checked + label {
+      background: #0ff;
+      color: #111;
+      box-shadow: 0 0 8px #0ff;
     }
 
-    #lockBtn, #nextBtn {
-      padding:10px 20px; font-size:16px; margin:10px;
-      border:none; cursor:pointer;
+    .actions {
+      background: #222;
+      padding: 20px;
+      text-align: center;
+      position: relative;
     }
-    #lockBtn { background:orange; color:#000; }
+    .actions button {
+      margin: 0 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .actions button:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+    #lockBtn {
+      background: #0ff;
+      color: #111;
+    }
+    #lockBtn:disabled {
+      background: #555;
+      cursor: default;
+    }
+    #lockBtn:hover:not(:disabled) {
+      background: #0cc;
+    }
     #nextBtn {
-      background:lime; color:#000;
-      display:none;
+      display: none;
+      background: #0f0;
+      color: #111;
     }
 
-    #message {
-      background:#222; color:#f33; padding:12px;
-      margin-top:10px; width:100%; text-align:center;
-      display:none;
+    /* Inline "Time's up!" or error message */
+    #messageBox {
+      display: none;
+      background: #1b1b1b;
+      border-top: 2px solid #0ff;
+      padding: 16px;
+      color: #ff0;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <div id="start-screen">
-    <p style="color:#aaa; cursor:pointer;">
-      Click anywhere to start in fullscreen
-    </p>
-  </div>
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar"></div>
 
-  <div id="quiz">
+  <div class="container">
+
     <div class="header">
-      <span class="title">Quiz 3</span>
-      <span class="level">Level – Easy</span>
-      <span class="timer" id="timer">01:00</span>
+      <h1>Quiz 3</h1>
+      <div class="level">Level – Easy</div>
+      <div class="timer" id="timer">01:00</div>
     </div>
 
     <div class="question">
-      Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br/><br/>
+      Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”
+      <br/><br/>
       How is that lady related to Rahul?
     </div>
 
     <div class="options">
-      <button onclick="selectOpt(this)">Mother</button>
-      <button onclick="selectOpt(this)">Sister</button>
-      <button onclick="selectOpt(this)">Wife</button>
-      <button onclick="selectOpt(this)">Daughter</button>
+      <input type="radio" id="optMother"  name="answer" value="Mother">
+      <label for="optMother">Mother</label>
+
+      <input type="radio" id="optSister"  name="answer" value="Sister">
+      <label for="optSister">Sister</label>
+
+      <input type="radio" id="optWife"    name="answer" value="Wife">
+      <label for="optWife">Wife</label>
+
+      <input type="radio" id="optDaughter"name="answer" value="Daughter">
+      <label for="optDaughter">Daughter</label>
     </div>
 
-    <button id="lockBtn" onclick="lockIt()">Lock Your Response</button>
-    <div id="message">⏰ Time’s up!</div>
-    <button id="nextBtn" onclick="goNext()">Next Quiz →</button>
+    <div id="messageBox"></div>
+
+    <div class="actions">
+      <button id="lockBtn">Lock Your Response</button>
+      <button id="nextBtn" onclick="goNext()">Next Quiz →</button>
+    </div>
+
   </div>
 
   <script>
-    const start = document.getElementById('start-screen');
-    const quiz  = document.getElementById('quiz');
-    const timerEl = document.getElementById('timer');
-    const msg     = document.getElementById('message');
-    const nextBtn = document.getElementById('nextBtn');
-    const lockBtn = document.getElementById('lockBtn');
-    const opts    = Array.from(document.querySelectorAll('.options button'));
-    let selected = null, locked = false, time=60, interval;
+    // Build progress bar
+    const progressBar = document.getElementById('progressBar');
+    for (let i=1; i<=15; i++){
+      const c = document.createElement('div');
+      c.className = 'quiz-item';
+      c.textContent = i;
+      c.dataset.quiz = i;
+      progressBar.appendChild(c);
+    }
+    // Mark current
+    document.querySelector('.quiz-item[data-quiz="3"]').classList.add('current');
 
-    start.addEventListener('click', async () => {
-      await document.documentElement.requestFullscreen().catch(()=>{});
-      start.style.display='none';
-      quiz.style.display='flex';
-      startTimer();
-    }, { once:true });
+    const timerEl   = document.getElementById('timer');
+    const lockBtn   = document.getElementById('lockBtn');
+    const nextBtn   = document.getElementById('nextBtn');
+    const msgBox    = document.getElementById('messageBox');
+    let interval, timeLeft=60, locked=false;
+    const correct='Wife';
 
+    // Start countdown
     function startTimer(){
       interval = setInterval(()=>{
-        const m = String(Math.floor(time/60)).padStart(2,'0');
-        const s = String(time%60).padStart(2,'0');
+        if (timeLeft<=0){
+          clearInterval(interval);
+          autoLock();
+          return;
+        }
+        timeLeft--;
+        const m=String(Math.floor(timeLeft/60)).padStart(2,'0');
+        const s=String(timeLeft%60).padStart(2,'0');
         timerEl.textContent = `${m}:${s}`;
-        if(time--===0) autoLock();
       },1000);
     }
+    startTimer();
 
-    function selectOpt(btn){
+    // Lock logic
+    lockBtn.addEventListener('click',()=>{
       if(locked) return;
-      opts.forEach(b=>b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selected = btn.textContent;
-    }
-
-    function lockIt(){
-      if(locked) return;
-      if(!selected){
-        msg.textContent = '❌ Please pick an option first.';
-        msg.style.display = 'block';
+      const sel = document.querySelector('input[name=answer]:checked');
+      if(!sel){
+        msgBox.textContent = '❌ Please select an option before locking.';
+        msgBox.style.display = 'block';
         return;
       }
-      locked = true;
       clearInterval(interval);
-      revealResult(selected==='Wife');
-    }
+      finalize(sel.value);
+    });
 
+    // Auto-lock on timeout or fullscreen exit
     function autoLock(){
       if(locked) return;
-      locked = true;
-      revealResult(false);
+      finalize(null);
     }
+    document.addEventListener('fullscreenchange',()=>{
+      if(!document.fullscreenElement) autoLock();
+    });
 
-    function revealResult(correct){
-      opts.forEach(b=>{
-        if(b.textContent==='Wife') b.style.background='green';
+    function finalize(choice){
+      locked = true;
+      // mark progress
+      const circle = document.querySelector('.quiz-item[data-quiz="3"]');
+      circle.classList.remove('current');
+      const correctCircle = choice===correct ? 'correct' : 'wrong';
+      circle.classList.add(correctCircle);
+
+      // reveal correct
+      document.querySelectorAll('.options label').forEach(label=>{
+        if(label.textContent===correct){
+          label.style.boxShadow = '0 0 8px limegreen';
+          label.style.background = 'limegreen';
+          label.style.color='#111';
+        }
       });
-      msg.textContent = 'Time’s up! Correct: Wife';
-      msg.style.display='block';
-      lockBtn.style.display='none';
+      // message
+      const msg = timeLeft<=0 || !choice
+        ? `⏰ Time’s up! Correct answer: ${correct}`
+        : (choice===correct
+           ? `✅ Correct! She is Rahul’s wife.`
+           : `❌ Wrong. Correct answer: ${correct}`);
+      msgBox.textContent = msg;
+      msgBox.style.display = 'block';
+
+      // disable inputs & lockBtn
+      document.querySelectorAll('input[name=answer]').forEach(i=>i.disabled=true);
+      lockBtn.disabled=true;
       nextBtn.style.display='inline-block';
     }
 
     function goNext(){
       window.location.href='quiz4.html';
     }
-
-    document.addEventListener('fullscreenchange',()=>{
-      if(!document.fullscreenElement && !locked) autoLock();
-    });
   </script>
-
 </body>
 </html>
