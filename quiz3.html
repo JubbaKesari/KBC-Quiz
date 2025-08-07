@@ -45,8 +45,29 @@
       background:#222; padding:20px;
       display:flex; justify-content:space-between; align-items:center;
     }
-    .header h1 { color:#0ff; font-size:28px; }
-    .header .level { color:#0f0; font-size:14px; font-weight:600; }
+   .header {
+  background: #222;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 {
+  color: #00ffff;    /* bright cyan */
+  font-size: 28px;
+  margin: 0;
+}
+.header .level {
+  color: #00ff00;    /* bright lime-green */
+  font-size: 14px;
+  font-weight: 600;
+}
+.header .timer {
+  color: #ff0;       /* keep your yellow timer */
+  font-family: monospace;
+  animation: pulse 1s infinite alternate;
+}
+
     .timer {
       font-family: monospace; color:#ff0; animation:pulse 1s infinite;
     }
@@ -228,3 +249,4 @@
   </script>
 </body>
 </html>
+
