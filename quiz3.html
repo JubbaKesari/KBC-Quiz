@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Quiz 3 – Family Relation Puzzle</title>
+  <title>Quiz 3</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0 }
     body {
@@ -12,155 +12,97 @@
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
     }
+    /* Fullscreen kiosk overlay */
+    #kioskOverlay {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:#000; color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      z-index:9999; font-size:24px; text-align:center;
+      cursor:pointer;
+    }
     /* Progress circles */
     .progress-bar {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 16px;
+      display:flex; justify-content:center; gap:8px; margin-bottom:16px;
     }
     .quiz-item {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: #555;
-      font-size: 12px;
-      line-height: 24px;
-      text-align: center;
-      color: #222;
-      transition: background .3s, box-shadow .3s;
+      width:24px; height:24px; line-height:24px;
+      border-radius:50%; background:#555; color:#222;
+      text-align:center; font-size:12px;
+      transition:background .3s, box-shadow .3s;
     }
-    .quiz-item.current { box-shadow: 0 0 0 3px #0ff; }
-    .quiz-item.correct { background: #0f0; box-shadow: 0 0 6px #0f0; color: #111; }
-    .quiz-item.wrong   { background: #f33; box-shadow: 0 0 6px #f33; color: #111; }
+    .quiz-item.current { box-shadow:0 0 0 3px #0ff; }
+    .quiz-item.correct { background:#0f0; box-shadow:0 0 6px #0f0; color:#111; }
+    .quiz-item.wrong   { background:#f33; box-shadow:0 0 6px #f33; color:#111; }
 
     .container {
-      max-width: 700px;
-      margin: auto;
-      background: #1e1e1e;
-      border-left: 4px solid #0ff;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      overflow: hidden;
+      max-width:700px; margin:auto;
+      background:#1e1e1e; border-left:4px solid #0ff;
+      border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.5);
+      overflow:hidden;
     }
     .header {
-      background: #222;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background:#222; padding:20px;
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .header h1 {
-      color: #0ff;
-      font-size: 28px;
-    }
-    .header .level {
-      color: #0f0;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    /* Timer in header */
+    .header h1 { color:#0ff; font-size:28px; }
+    .header .level { color:#0f0; font-size:14px; font-weight:600; }
     .timer {
-      font-family: monospace;
-      color: #ff0;
-      font-size: 16px;
-      animation: pulse 1s infinite;
+      font-family: monospace; color:#ff0; animation:pulse 1s infinite;
     }
-    @keyframes pulse {
-      50% { transform: scale(1.1); }
-    }
+    @keyframes pulse {50%{transform:scale(1.1)}}
 
     .question {
-      background: #1b1b1b;
-      padding: 20px;
-      text-align: center;
-      font-size: 16px;
-      line-height: 1.5;
+      background:#1b1b1b; padding:20px; text-align:center;
+      font-size:16px; line-height:1.5;
+    }
+    .options {
+      background:#1b1b1b; display:flex;
+      justify-content:space-around; flex-wrap:wrap;
+      padding:20px; gap:16px;
+    }
+    .options input{display:none;}
+    .options label {
+      background:#333; color:#eee;
+      padding:12px 24px; border-radius:6px;
+      cursor:pointer; transition:background .2s, box-shadow .2s;
+      min-width:120px; text-align:center;
+    }
+    .options label:hover { background:#0ff; color:#111; }
+    .options input:checked+label {
+      background:#0ff; color:#111; box-shadow:0 0 8px #0ff;
     }
 
-    .options {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding: 20px;
-      background: #1b1b1b;
-    }
-    .options input { display: none; }
-    .options label {
-      display: block;
-      background: #333;
-      color: #eee;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background .2s, box-shadow .2s;
-      min-width: 120px;
-      text-align: center;
-    }
-    .options label:hover {
-      background: #0ff;
-      color: #111;
-    }
-    .options input:checked + label {
-      background: #0ff;
-      color: #111;
-      box-shadow: 0 0 8px #0ff;
+    #messageBox {
+      display:none; background:#1b1b1b;
+      border-top:2px solid #0ff; padding:16px;
+      color:#ff0; font-weight:bold; text-align:center;
     }
 
     .actions {
-      background: #222;
-      padding: 20px;
-      text-align: center;
-      position: relative;
+      background:#222; padding:20px; text-align:center;
     }
     .actions button {
-      margin: 0 8px;
-      padding: 10px 20px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background .2s, transform .2s;
+      margin:0 8px; padding:10px 20px;
+      font-size:14px; border:none; border-radius:6px;
+      cursor:pointer; transition:background .2s, transform .2s;
     }
-    .actions button:hover:not(:disabled) {
-      transform: translateY(-2px);
-    }
-    #lockBtn {
-      background: #0ff;
-      color: #111;
-    }
-    #lockBtn:disabled {
-      background: #555;
-      cursor: default;
-    }
-    #lockBtn:hover:not(:disabled) {
-      background: #0cc;
-    }
-    #nextBtn {
-      display: none;
-      background: #0f0;
-      color: #111;
-    }
-
-    /* Inline "Time's up!" or error message */
-    #messageBox {
-      display: none;
-      background: #1b1b1b;
-      border-top: 2px solid #0ff;
-      padding: 16px;
-      color: #ff0;
-      font-weight: bold;
-      text-align: center;
-    }
+    .actions button:hover:not(:disabled){transform:translateY(-2px);}
+    #lockBtn{background:#0ff;color:#111;}
+    #lockBtn:disabled{background:#555;cursor:default;}
+    #lockBtn:hover:not(:disabled){background:#0cc;}
+    #nextBtn{display:none;background:#0f0;color:#111;}
   </style>
 </head>
 <body>
+
+  <!-- Kiosk overlay -->
+  <div id="kioskOverlay">Click anywhere to start the quiz in fullscreen</div>
 
   <!-- Progress -->
   <div class="progress-bar" id="progressBar"></div>
 
   <div class="container">
-
     <div class="header">
       <h1>Quiz 3</h1>
       <div class="level">Level – Easy</div>
@@ -193,96 +135,91 @@
       <button id="lockBtn">Lock Your Response</button>
       <button id="nextBtn" onclick="goNext()">Next Quiz →</button>
     </div>
-
   </div>
 
   <script>
-    // Build progress bar
-    const progressBar = document.getElementById('progressBar');
-    for (let i=1; i<=15; i++){
-      const c = document.createElement('div');
-      c.className = 'quiz-item';
-      c.textContent = i;
-      c.dataset.quiz = i;
-      progressBar.appendChild(c);
+    // Progress bar & restore
+    const pb = document.getElementById('progressBar');
+    for(let i=1;i<=15;i++){
+      let c=document.createElement('div');
+      c.className='quiz-item'; c.textContent=i; c.dataset.quiz=i;
+      let st = sessionStorage.getItem('quiz'+i);
+      if(st) c.classList.add(st);
+      pb.appendChild(c);
     }
-    // Mark current
     document.querySelector('.quiz-item[data-quiz="3"]').classList.add('current');
 
-    const timerEl   = document.getElementById('timer');
-    const lockBtn   = document.getElementById('lockBtn');
-    const nextBtn   = document.getElementById('nextBtn');
-    const msgBox    = document.getElementById('messageBox');
-    let interval, timeLeft=60, locked=false;
-    const correct='Wife';
+    // Kiosk overlay → fullscreen start
+    const overlay = document.getElementById('kioskOverlay');
+    overlay.addEventListener('click',async()=>{
+      await document.documentElement.requestFullscreen().catch(()=>{});
+      overlay.style.display='none';
+      startTimer();
+    },{once:true});
 
-    // Start countdown
+    // Timer
+    let timeLeft=60, interval;
+    const timerEl=document.getElementById('timer');
+    const msgBox=document.getElementById('messageBox');
+    const lockBtn=document.getElementById('lockBtn');
+    const nextBtn=document.getElementById('nextBtn');
+    const correct='Wife';
     function startTimer(){
-      interval = setInterval(()=>{
-        if (timeLeft<=0){
-          clearInterval(interval);
-          autoLock();
-          return;
-        }
+      interval=setInterval(()=>{
+        if(timeLeft<=0){ clearInterval(interval); finalize(null); return; }
+        let m=String(Math.floor(timeLeft/60)).padStart(2,'0');
+        let s=String(timeLeft%60).padStart(2,'0');
+        timerEl.textContent=`${m}:${s}`;
         timeLeft--;
-        const m=String(Math.floor(timeLeft/60)).padStart(2,'0');
-        const s=String(timeLeft%60).padStart(2,'0');
-        timerEl.textContent = `${m}:${s}`;
       },1000);
     }
-    startTimer();
 
-    // Lock logic
+    // Lock handler
     lockBtn.addEventListener('click',()=>{
-      if(locked) return;
-      const sel = document.querySelector('input[name=answer]:checked');
+      if(lockBtn.disabled) return;
+      const sel = document.querySelector('input[name="answer"]:checked');
       if(!sel){
-        msgBox.textContent = '❌ Please select an option before locking.';
-        msgBox.style.display = 'block';
+        msgBox.textContent='❌ Please select an option before locking.';
+        msgBox.style.display='block';
         return;
       }
       clearInterval(interval);
       finalize(sel.value);
     });
 
-    // Auto-lock on timeout or fullscreen exit
-    function autoLock(){
-      if(locked) return;
-      finalize(null);
-    }
+    // Auto lock on exit full-screen
     document.addEventListener('fullscreenchange',()=>{
-      if(!document.fullscreenElement) autoLock();
+      if(!document.fullscreenElement) finalize(null);
     });
 
     function finalize(choice){
-      locked = true;
-      // mark progress
-      const circle = document.querySelector('.quiz-item[data-quiz="3"]');
-      circle.classList.remove('current');
-      const correctCircle = choice===correct ? 'correct' : 'wrong';
-      circle.classList.add(correctCircle);
-
-      // reveal correct
-      document.querySelectorAll('.options label').forEach(label=>{
-        if(label.textContent===correct){
-          label.style.boxShadow = '0 0 8px limegreen';
-          label.style.background = 'limegreen';
-          label.style.color='#111';
+      // prevent multiple
+      if(lockBtn.disabled===true) return;
+      lockBtn.disabled=true;
+      // progress circle
+      let c = document.querySelector('.quiz-item[data-quiz="3"]');
+      c.classList.remove('current');
+      let status = (choice===correct) ? 'correct' : 'wrong';
+      c.classList.add(status);
+      sessionStorage.setItem('quiz3',status);
+      // highlight correct
+      document.querySelectorAll('.options label').forEach(lbl=>{
+        if(lbl.textContent===correct){
+          lbl.style.background='limegreen';
+          lbl.style.color='#111';
+          lbl.style.boxShadow='0 0 8px limegreen';
         }
       });
       // message
-      const msg = timeLeft<=0 || !choice
-        ? `⏰ Time’s up! Correct answer: ${correct}`
-        : (choice===correct
-           ? `✅ Correct! She is Rahul’s wife.`
-           : `❌ Wrong. Correct answer: ${correct}`);
-      msgBox.textContent = msg;
-      msgBox.style.display = 'block';
-
-      // disable inputs & lockBtn
-      document.querySelectorAll('input[name=answer]').forEach(i=>i.disabled=true);
-      lockBtn.disabled=true;
+      let text;
+      if(timeLeft<0||choice===null) text=`Time’s up! Correct: ${correct}`;
+      else if(choice===correct) text='✅ Correct! She is Rahul’s wife.';
+      else text=`❌ Wrong. Correct: ${correct}`;
+      msgBox.textContent=text;
+      msgBox.style.display='block';
       nextBtn.style.display='inline-block';
+      // disable inputs
+      document.querySelectorAll('input[name="answer"]').forEach(i=>i.disabled=true);
     }
 
     function goNext(){
