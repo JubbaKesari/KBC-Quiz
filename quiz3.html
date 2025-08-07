@@ -2,224 +2,164 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Quiz 3</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-      height: 100%;
-      overflow: hidden;
+    * { box-sizing: border-box; margin:0; padding:0 }
+    body {
+      background:#111; color:#eee; font-family:Arial,sans-serif;
+      display:flex; align-items:center; justify-content:center;
+      height:100vh; overflow:hidden;
+    }
+    #start-screen, #quiz {
+      width:100%; max-width:700px;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    #quiz { display:none; }
+
+    .header {
+      background:#222; width:100%; padding:20px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .title { color:#0ff; font-size:24px; }
+    .level { color:lightgreen; }
+    .timer { color:yellow; font-family:monospace; }
+
+    .question {
+      background:#1b1b1b; width:100%; padding:20px; text-align:center;
     }
 
-    #start-screen, #quiz-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      flex-direction: column;
+    .options {
+      display:flex; justify-content:space-around;
+      width:100%; padding:20px 0;
+    }
+    .options button {
+      background:#333; color:#eee; border:none;
+      padding:10px 20px; font-size:16px;
+      cursor:pointer; transition:0.2s;
+    }
+    .options button.selected {
+      background:deepskyblue; box-shadow:0 0 8px deepskyblue;
     }
 
-    #quiz-container {
-      display: none;
+    #lockBtn, #nextBtn {
+      padding:10px 20px; font-size:16px; margin:10px;
+      border:none; cursor:pointer;
     }
-
-    h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    .level {
-      font-size: 20px;
-      color: lightgreen;
-      margin-bottom: 20px;
-      animation: pulse 1s infinite alternate;
-    }
-
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .option-button {
-      display: block;
-      background-color: #333;
-      color: white;
-      border: 2px solid white;
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: 0.3s;
-      width: 200px;
-      text-align: center;
-    }
-
-    .option-button:hover {
-      background-color: white;
-      color: black;
-    }
-
-    .selected {
-      background-color: dodgerblue !important;
-    }
-
-    .correct {
-      background-color: green !important;
-    }
-
-    .wrong {
-      background-color: red !important;
-    }
-
-    #lock-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: orange;
-      color: black;
-      border: none;
-      cursor: pointer;
-    }
-
-    #timer {
-      font-size: 24px;
-      margin-bottom: 20px;
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      50% { opacity: 0.5; }
+    #lockBtn { background:orange; color:#000; }
+    #nextBtn {
+      background:lime; color:#000;
+      display:none;
     }
 
     #message {
-      color: red;
-      margin-top: 10px;
-    }
-
-    #next-btn {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: lime;
-      color: black;
-      border: none;
-      cursor: pointer;
-      display: none;
+      background:#222; color:#f33; padding:12px;
+      margin-top:10px; width:100%; text-align:center;
+      display:none;
     }
   </style>
 </head>
 <body>
 
-<div id="start-screen">
-  <p>Click anywhere to start the quiz in fullscreen</p>
-</div>
+  <div id="start-screen">
+    <p style="color:#aaa; cursor:pointer;">
+      Click anywhere to start in fullscreen
+    </p>
+  </div>
 
-<div id="quiz-container">
-  <div class="level">Level – Easy</div>
-  <div id="timer">01:00</div>
-  <h1>What is the relationship between the man and the woman?</h1>
-  <img src="Quiz3.PNG" alt="Quiz 3" style="max-width: 90%; height: auto; margin-bottom: 20px;">
+  <div id="quiz">
+    <div class="header">
+      <span class="title">Quiz 3</span>
+      <span class="level">Level – Easy</span>
+      <span class="timer" id="timer">01:00</span>
+    </div>
 
-  <button class="option-button" onclick="selectOption(this)">Mother</button>
-  <button class="option-button" onclick="selectOption(this)">Sister</button>
-  <button class="option-button" onclick="selectOption(this)">Wife</button>
-  <button class="option-button" onclick="selectOption(this)">Daughter</button>
+    <div class="question">
+      Pointing to a lady, Rahul said, “She is the wife of my mother’s father’s only grandchild.”<br/><br/>
+      How is that lady related to Rahul?
+    </div>
 
-  <button id="lock-btn" onclick="lockAnswer()">Lock Your Response</button>
-  <div id="message"></div>
-  <button id="next-btn" onclick="goToNext()">Next Quiz</button>
-</div>
+    <div class="options">
+      <button onclick="selectOpt(this)">Mother</button>
+      <button onclick="selectOpt(this)">Sister</button>
+      <button onclick="selectOpt(this)">Wife</button>
+      <button onclick="selectOpt(this)">Daughter</button>
+    </div>
 
-<script>
-  let selectedOption = null;
-  let locked = false;
-  let correctAnswer = "Wife";
-  let timerInterval;
-  let timeLeft = 60;
+    <button id="lockBtn" onclick="lockIt()">Lock Your Response</button>
+    <div id="message">⏰ Time’s up!</div>
+    <button id="nextBtn" onclick="goNext()">Next Quiz →</button>
+  </div>
 
-  const startScreen = document.getElementById('start-screen');
-  const quizContainer = document.getElementById('quiz-container');
-  const message = document.getElementById('message');
-  const timer = document.getElementById('timer');
-  const nextBtn = document.getElementById('next-btn');
+  <script>
+    const start = document.getElementById('start-screen');
+    const quiz  = document.getElementById('quiz');
+    const timerEl = document.getElementById('timer');
+    const msg     = document.getElementById('message');
+    const nextBtn = document.getElementById('nextBtn');
+    const lockBtn = document.getElementById('lockBtn');
+    const opts    = Array.from(document.querySelectorAll('.options button'));
+    let selected = null, locked = false, time=60, interval;
 
-  document.addEventListener('click', async () => {
-    if (document.fullscreenElement) return;
-    await document.documentElement.requestFullscreen();
-    startScreen.style.display = 'none';
-    quizContainer.style.display = 'flex';
-    startTimer();
-  }, { once: true });
+    start.addEventListener('click', async () => {
+      await document.documentElement.requestFullscreen().catch(()=>{});
+      start.style.display='none';
+      quiz.style.display='flex';
+      startTimer();
+    }, { once:true });
 
-  function selectOption(btn) {
-    if (locked) return;
-    document.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedOption = btn;
-    message.textContent = "";
-  }
-
-  function lockAnswer() {
-    if (locked) return;
-    if (!selectedOption) {
-      message.textContent = "Please select an option before locking.";
-      return;
+    function startTimer(){
+      interval = setInterval(()=>{
+        const m = String(Math.floor(time/60)).padStart(2,'0');
+        const s = String(time%60).padStart(2,'0');
+        timerEl.textContent = `${m}:${s}`;
+        if(time--===0) autoLock();
+      },1000);
     }
 
-    locked = true;
-    stopTimer();
+    function selectOpt(btn){
+      if(locked) return;
+      opts.forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selected = btn.textContent;
+    }
 
-    document.querySelectorAll('.option-button').forEach(b => {
-      if (b.textContent === correctAnswer) b.classList.add('correct');
-      else if (b === selectedOption && b.textContent !== correctAnswer) b.classList.add('wrong');
-    });
-
-    nextBtn.style.display = 'inline-block';
-  }
-
-  function goToNext() {
-    window.location.href = "quiz4.html";
-  }
-
-  function startTimer() {
-    timerInterval = setInterval(() => {
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        timer.textContent = "⏰ Time's up!";
-        autoLock();
+    function lockIt(){
+      if(locked) return;
+      if(!selected){
+        msg.textContent = '❌ Please pick an option first.';
+        msg.style.display = 'block';
         return;
       }
-      timeLeft--;
-      let mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-      let secs = String(timeLeft % 60).padStart(2, '0');
-      timer.textContent = `${mins}:${secs}`;
-    }, 1000);
-  }
-
-  function stopTimer() {
-    clearInterval(timerInterval);
-  }
-
-  function autoLock() {
-    if (locked) return;
-    locked = true;
-    document.querySelectorAll('.option-button').forEach(b => {
-      if (b.textContent === correctAnswer) b.classList.add('correct');
-    });
-    nextBtn.style.display = 'inline-block';
-  }
-
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && !locked) {
-      autoLock();
-      timer.textContent = "⏰ Time's up!";
+      locked = true;
+      clearInterval(interval);
+      revealResult(selected==='Wife');
     }
-  });
-</script>
+
+    function autoLock(){
+      if(locked) return;
+      locked = true;
+      revealResult(false);
+    }
+
+    function revealResult(correct){
+      opts.forEach(b=>{
+        if(b.textContent==='Wife') b.style.background='green';
+      });
+      msg.textContent = 'Time’s up! Correct: Wife';
+      msg.style.display='block';
+      lockBtn.style.display='none';
+      nextBtn.style.display='inline-block';
+    }
+
+    function goNext(){
+      window.location.href='quiz4.html';
+    }
+
+    document.addEventListener('fullscreenchange',()=>{
+      if(!document.fullscreenElement && !locked) autoLock();
+    });
+  </script>
 
 </body>
 </html>
